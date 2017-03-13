@@ -4,6 +4,7 @@ public class MovementScript : MonoBehaviour
 {
     public float rotationSpeed;
     public float moveAcceleration;
+    public float airMoveAcceleration;
     public float maxMovementSpeed;
     public float jumpSpeed;
     public float fallAcceleration;
@@ -17,18 +18,22 @@ public class MovementScript : MonoBehaviour
     private Vector3 moveDirection;
     private float verticalSpeed;
 
+    private Vector3 surfaceNormal;
+    private Vector3 moveVelocity;
+
     void Start()
     {
         moveDirection = Vector3.zero;
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        surfaceNormal = Vector3.up;
+        moveVelocity = Vector3.zero;
     }
 
     void Update()
     {
-        Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up);
-        rotatedTransform.rotation = Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), rotationSpeed * Time.deltaTime);
-
-        Vector3 newMoveDirection = Vector3.zero;
-
+        
         // TODO : Maybe should do jump in FixedUpdate?
         if (controller.isGrounded)
         {
@@ -39,18 +44,19 @@ public class MovementScript : MonoBehaviour
             verticalSpeed -= fallAcceleration * Time.deltaTime;
         }
 
+        Vector3 newMoveDirection = Vector3.zero;
         if (state.idle)
         {
-            // TODO : Project based on normal!
-            Vector3 forwardMove = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up).normalized;
+            Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up);
+            rotatedTransform.rotation = Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), rotationSpeed * Time.deltaTime);
+            Vector3 forwardMove = Vector3.ProjectOnPlane(cameraTransform.forward, surfaceNormal).normalized;
             if (Input.GetKey(KeyCode.W))
             {
                 newMoveDirection += forwardMove;
             }
             if (Input.GetKey(KeyCode.A))
             {
-                // TODO : Rotate based on normal!
-                newMoveDirection += Quaternion.AngleAxis(-90, Vector3.up) * forwardMove;
+                newMoveDirection += Quaternion.AngleAxis(-90, surfaceNormal) * forwardMove;
             }
             if (Input.GetKey(KeyCode.S))
             {
@@ -58,15 +64,12 @@ public class MovementScript : MonoBehaviour
             }
             if (Input.GetKey(KeyCode.D))
             {
-                // TODO : Rotate based on normal!
-                newMoveDirection += Quaternion.AngleAxis(90, Vector3.up) * forwardMove;
+                newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * forwardMove;
             }
             if (Input.GetKey(KeyCode.D))
             {
-                // TODO : Rotate based on normal!
-                newMoveDirection += Quaternion.AngleAxis(90, Vector3.up) * forwardMove;
+                newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * forwardMove;
             }
-            moveDirection = newMoveDirection.normalized;
             if (controller.isGrounded)
             {
                 if (Input.GetKey(KeyCode.Space))
@@ -75,6 +78,7 @@ public class MovementScript : MonoBehaviour
                 }
             }
         }
+        moveDirection = newMoveDirection.normalized;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -103,14 +107,34 @@ public class MovementScript : MonoBehaviour
 
     void FixedUpdate()
     {
-        // TODO : controller.velocity gets combined velocities, not only movement velocity. Need to separate and process separately!
-        // TODO : friction should apply to the combined acceleration, not just move acceleration!
-        Vector3 moveVelocity = controller.velocity + moveDirection * moveAcceleration;
-        moveVelocity -= friction * controller.velocity;
+        RaycastHit hit;
+        if (Physics.Raycast(new Ray(transform.position, Vector3.down), out hit, 0.5f))
+        {
+            surfaceNormal = hit.normal;
+        }
+        else
+        {
+            surfaceNormal = Vector3.up;
+        }
+        Debug.DrawRay(transform.position, Vector3.down * 0.2f, Color.red);
+        Debug.DrawRay(transform.position, surfaceNormal, Color.yellow);
+
+        Vector3 groundAcceleration = moveDirection * moveAcceleration;
+        if (controller.isGrounded)
+        {
+            // TODO : Need to apply friction to total ground velocity, not just move velocity!
+            groundAcceleration -= friction * moveVelocity;
+        }
+        else
+        {
+            groundAcceleration *= airMoveAcceleration;
+        }
+        moveVelocity += groundAcceleration;
         if (moveVelocity.magnitude > maxMovementSpeed)
         {
             moveVelocity = moveVelocity.normalized * maxMovementSpeed;
         }
+
         controller.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
     }
 }
