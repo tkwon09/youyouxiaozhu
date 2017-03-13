@@ -135,6 +135,7 @@ public class MovementScript : MonoBehaviour
             moveVelocity = moveVelocity.normalized * maxMovementSpeed;
         }
 
+        //agent.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
         controller.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
     }
 }
