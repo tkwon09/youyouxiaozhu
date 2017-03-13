@@ -3,12 +3,15 @@
 public class MovementScript : MonoBehaviour
 {
     public float rotationSpeed;
+    public float runRotationSpeed;
     public float moveAcceleration;
     public float airMoveAcceleration;
     public float maxMovementSpeed;
+    public float maxRunSpeed;
     public float jumpSpeed;
     public float fallAcceleration;
     public float friction;
+    public float airFriction;
     public CharacterController controller;
     public Transform rotatedTransform;
     public Transform cameraTransform;
@@ -17,9 +20,13 @@ public class MovementScript : MonoBehaviour
 
     private Vector3 moveDirection;
     private float verticalSpeed;
+    private bool jumped;
+    private bool onGround;
 
     private Vector3 surfaceNormal;
     private Vector3 moveVelocity;
+    private float currentMaxMoveSpeed;
+    private float currentRotationSpeed;
 
     void Start()
     {
@@ -29,52 +36,56 @@ public class MovementScript : MonoBehaviour
         Cursor.visible = false;
         surfaceNormal = Vector3.up;
         moveVelocity = Vector3.zero;
+        currentMaxMoveSpeed = maxMovementSpeed;
+        currentRotationSpeed = rotationSpeed;
+        jumped = false;
+        onGround = false;
     }
 
     void Update()
     {
-        
-        // TODO : Maybe should do jump in FixedUpdate?
-        if (controller.isGrounded)
-        {
-            verticalSpeed = 0;
-        }
-        else
-        {
-            verticalSpeed -= fallAcceleration * Time.deltaTime;
-        }
-
         Vector3 newMoveDirection = Vector3.zero;
         if (state.idle)
         {
             Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up);
-            rotatedTransform.rotation = Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), rotationSpeed * Time.deltaTime);
-            Vector3 forwardMove = Vector3.ProjectOnPlane(cameraTransform.forward, surfaceNormal).normalized;
+            rotatedTransform.rotation = Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
+            Vector3 forwardMove = Vector3.ProjectOnPlane(rotatedTransform.forward, surfaceNormal).normalized;
             if (Input.GetKey(KeyCode.W))
             {
                 newMoveDirection += forwardMove;
-            }
-            if (Input.GetKey(KeyCode.A))
-            {
-                newMoveDirection += Quaternion.AngleAxis(-90, surfaceNormal) * forwardMove;
-            }
-            if (Input.GetKey(KeyCode.S))
-            {
-                newMoveDirection += -forwardMove;
-            }
-            if (Input.GetKey(KeyCode.D))
-            {
-                newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * forwardMove;
-            }
-            if (Input.GetKey(KeyCode.D))
-            {
-                newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * forwardMove;
-            }
-            if (controller.isGrounded)
-            {
-                if (Input.GetKey(KeyCode.Space))
+                if (Input.GetKey(KeyCode.LeftShift))
                 {
-                    verticalSpeed = jumpSpeed;
+                    currentMaxMoveSpeed = maxRunSpeed;
+                    currentRotationSpeed = runRotationSpeed;
+                    animator.SetBool("running", true);
+                }
+            }
+            if (!animator.GetBool("running"))
+            {
+                if (Input.GetKey(KeyCode.A))
+                {
+                        newMoveDirection += Quaternion.AngleAxis(-90, surfaceNormal) * forwardMove;
+                }
+                if (Input.GetKey(KeyCode.S))
+                {
+                    newMoveDirection += -forwardMove;
+                }
+                if (Input.GetKey(KeyCode.D))
+                {
+                        newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * forwardMove;
+                }
+            }
+            if (!Input.GetKey(KeyCode.LeftShift) || !Input.GetKey(KeyCode.W))
+            {
+                currentMaxMoveSpeed = maxMovementSpeed;
+                currentRotationSpeed = rotationSpeed;
+                animator.SetBool("running", false);
+            }
+            if (onGround)
+            {
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+                    jumped = true;
                 }
             }
         }
@@ -108,7 +119,8 @@ public class MovementScript : MonoBehaviour
     void FixedUpdate()
     {
         RaycastHit hit;
-        if (Physics.Raycast(new Ray(transform.position, Vector3.down), out hit, 0.5f))
+        onGround = Physics.Raycast(new Ray(transform.position, Vector3.down), out hit, 0.5f);
+        if (onGround)
         {
             surfaceNormal = hit.normal;
         }
@@ -119,20 +131,30 @@ public class MovementScript : MonoBehaviour
         Debug.DrawRay(transform.position, Vector3.down * 0.2f, Color.red);
         Debug.DrawRay(transform.position, surfaceNormal, Color.yellow);
 
-        Vector3 groundAcceleration = moveDirection * moveAcceleration;
+        Vector3 moveAccelerationVector = moveDirection;
+        // NOTE : This doesn't use onGround because want to let it keep falling.
         if (controller.isGrounded)
         {
-            // TODO : Need to apply friction to total ground velocity, not just move velocity!
-            groundAcceleration -= friction * moveVelocity;
+            moveAccelerationVector *= moveAcceleration;
+            moveAccelerationVector -= friction * moveVelocity;
+            verticalSpeed = 0;
         }
         else
         {
-            groundAcceleration *= airMoveAcceleration;
+            moveAccelerationVector *= airMoveAcceleration;
+            moveAccelerationVector -= airFriction * moveVelocity;
+            verticalSpeed -= fallAcceleration * Time.fixedDeltaTime;
         }
-        moveVelocity += groundAcceleration;
-        if (moveVelocity.magnitude > maxMovementSpeed)
+        moveVelocity += moveAccelerationVector;
+        if (moveVelocity.magnitude > currentMaxMoveSpeed)
         {
-            moveVelocity = moveVelocity.normalized * maxMovementSpeed;
+            moveVelocity = moveVelocity.normalized * currentMaxMoveSpeed;
+        }
+
+        if (jumped)
+        {
+            verticalSpeed = jumpSpeed;
+            jumped = false;
         }
 
         //agent.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
