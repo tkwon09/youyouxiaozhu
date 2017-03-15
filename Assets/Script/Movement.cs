@@ -50,12 +50,15 @@ public class Movement : MonoBehaviour {
             {
                 case 0:
                     anim.SetTrigger("attack1");
+                    playerState.attackPhase = 1;
                     break;
                 case 1:
                     anim.SetTrigger("attack2");
+                    playerState.attackPhase = 2;
                     break;
                 case 2:
                     anim.SetTrigger("attack3");
+                    playerState.attackPhase = 0;
                     break;
             }
             

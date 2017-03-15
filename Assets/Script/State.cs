@@ -7,9 +7,11 @@ public class State : MonoBehaviour {
     public bool idle = true;
     public bool walking = false;
     public int attackPhase = 0;
+    public bool runAttacked = false;
+    public Animator anim;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		
 	}
 	
@@ -21,27 +23,21 @@ public class State : MonoBehaviour {
     void becomeBusy()
     {
         idle = false;
-        walking = false;
+        //walking = false;
     }
     void becomeFree()
     {
         idle = true;
         walking = false;
-    }
-    void attackPhase1()
-    {
-        attackPhase = 1;
-    }
-    void attackPhase2()
-    {
-        attackPhase = 2;
-    }
-    void attackPhase3()
-    {
-        attackPhase = 3;
-    }
-    void endAttack()
-    {
         attackPhase = 0;
+        anim.ResetTrigger("attack1");
+        anim.ResetTrigger("attack2");
+        anim.ResetTrigger("attack3");
+        anim.ResetTrigger("guard");
+    }
+
+    void runAttack()
+    {
+        runAttacked = true;
     }
 }

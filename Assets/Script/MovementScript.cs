@@ -8,6 +8,7 @@ public class MovementScript : MonoBehaviour
     public float airMoveAcceleration;
     public float maxMovementSpeed;
     public float maxRunSpeed;
+    public float dashSpeed;
     public float jumpSpeed;
     public float fallAcceleration;
     public float friction;
@@ -90,6 +91,7 @@ public class MovementScript : MonoBehaviour
             }
         }
         moveDirection = newMoveDirection.normalized;
+        animator.SetBool("walking", moveDirection != Vector3.zero);
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -98,12 +100,15 @@ public class MovementScript : MonoBehaviour
             {
                 case 0:
                     animator.SetTrigger("attack1");
+                    state.attackPhase = 1;
                     break;
                 case 1:
                     animator.SetTrigger("attack2");
+                    state.attackPhase = 2;
                     break;
                 case 2:
                     animator.SetTrigger("attack3");
+                    state.attackPhase = 0;
                     break;
             }
 
@@ -113,7 +118,6 @@ public class MovementScript : MonoBehaviour
             moveDirection = Vector3.zero;
             animator.SetTrigger("guard");
         }
-        animator.SetBool("walking", moveDirection != Vector3.zero);
     }
 
     void FixedUpdate()
@@ -131,22 +135,16 @@ public class MovementScript : MonoBehaviour
         Debug.DrawRay(transform.position, Vector3.down * 0.2f, Color.red);
         Debug.DrawRay(transform.position, surfaceNormal, Color.yellow);
 
-        Vector3 moveAccelerationVector = moveDirection;
+        Vector3 moveAccelVector = moveDirection * ((controller.isGrounded) ? moveAcceleration : airMoveAcceleration);
+        //Vector3 frictionVector = moveVelocity * ((controller.isGrounded) ? friction : airFriction);
+
         // NOTE : This doesn't use onGround because want to let it keep falling.
-        if (controller.isGrounded)
-        {
-            moveAccelerationVector *= moveAcceleration;
-            moveAccelerationVector -= friction * moveVelocity;
-            verticalSpeed = 0;
-        }
-        else
-        {
-            moveAccelerationVector *= airMoveAcceleration;
-            moveAccelerationVector -= airFriction * moveVelocity;
-            verticalSpeed -= fallAcceleration * Time.fixedDeltaTime;
-        }
-        moveVelocity += moveAccelerationVector;
-        if (moveVelocity.magnitude > currentMaxMoveSpeed)
+        verticalSpeed += (controller.isGrounded) ? 0 : -fallAcceleration * Time.deltaTime;
+
+        moveVelocity += moveAccelVector;
+        moveVelocity = Vector3.MoveTowards(moveVelocity, Vector3.zero, ((controller.isGrounded)? friction : airFriction) * Time.fixedDeltaTime);
+        //moveVelocity -= frictionVector;
+        if (state.idle && moveVelocity.magnitude > currentMaxMoveSpeed)
         {
             moveVelocity = moveVelocity.normalized * currentMaxMoveSpeed;
         }
@@ -155,6 +153,12 @@ public class MovementScript : MonoBehaviour
         {
             verticalSpeed = jumpSpeed;
             jumped = false;
+        }
+
+        if (state.runAttacked)
+        {
+            moveVelocity = moveVelocity.normalized * dashSpeed;
+            state.runAttacked = false;
         }
 
         //agent.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
