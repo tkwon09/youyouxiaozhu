@@ -164,4 +164,14 @@ public class MovementScript : MonoBehaviour
         //agent.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
         controller.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
     }
+
+    public Vector3 GetMoveVelocity()
+    {
+        return moveVelocity;
+    }
+
+    public Vector3 GetSurfaceNormal()
+    {
+        return surfaceNormal;
+    }
 }
