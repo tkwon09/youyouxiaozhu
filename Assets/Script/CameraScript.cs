@@ -20,12 +20,14 @@ public class CameraScript : MonoBehaviour
     public float distanceMax = 15f;
 
     public int obstacleAvoidanceIterations;
+    public float avoidanceRecoveryTime;
 
     float x = 0.0f;
     float y = 0.0f;
     private float targetDistance;
     private Quaternion targetRotation;
     private Vector3 targetPosition;
+    float avoidanceStrength;
 
     // Use this for initialization
     void Start()
@@ -35,6 +37,7 @@ public class CameraScript : MonoBehaviour
         Vector3 angles = transform.eulerAngles;
         x = angles.y;
         y = angles.x;
+        avoidanceStrength = 1;
     }
 
     // Update is called once per frame
@@ -42,6 +45,15 @@ public class CameraScript : MonoBehaviour
     {
         x += Input.GetAxis("Mouse X") * xSpeed * Time.deltaTime;
         y -= Input.GetAxis("Mouse Y") * ySpeed * Time.deltaTime;
+
+        if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
+        {
+            avoidanceStrength = 0;
+        }
+        else if (avoidanceStrength < 1.0f)
+        {
+            avoidanceStrength += Time.deltaTime / avoidanceRecoveryTime;
+        }
 
         if (y < -360F)
             y += 360F;
@@ -76,7 +88,7 @@ public class CameraScript : MonoBehaviour
                     // Check cross product between vectors. If normalized cross product - surfaceNormal = zero vector, then it's positive x movement.
                     Vector3 crossTest = Vector3.Cross(Vector3.ProjectOnPlane(vectorToPosition, movement.GetSurfaceNormal()), Vector3.ProjectOnPlane(vectorToNewPosition, movement.GetSurfaceNormal())).normalized;
                     float sign = (movement.GetSurfaceNormal() - crossTest == Vector3.zero) ? 1 : -1;
-                    x += sign * movement.GetMoveVelocity().magnitude * cameraMoveSpeed * Time.deltaTime * (obstacleAvoidanceIterations - i) / (obstacleAvoidanceIterations - 1);
+                    x += sign * movement.GetMoveVelocity().magnitude * cameraMoveSpeed * Time.deltaTime * (obstacleAvoidanceIterations - i) / (obstacleAvoidanceIterations - 1) * avoidanceStrength;
                     notHit = false;
                 }
             }
