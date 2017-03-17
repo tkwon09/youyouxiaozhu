@@ -49,34 +49,44 @@ public class MovementScript : MonoBehaviour
         if (state.idle)
         {
             Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up);
-            rotatedTransform.rotation = Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
-            Vector3 forwardMove = Vector3.ProjectOnPlane(rotatedTransform.forward, surfaceNormal).normalized;
+            Vector3 playerForward = Vector3.ProjectOnPlane(moveDirection, Vector3.up);
+            Vector3 forwardMove = Vector3.ProjectOnPlane(cameraForward, surfaceNormal).normalized;
             if (Input.GetKey(KeyCode.W))
             {
                 newMoveDirection += forwardMove;
-                if (Input.GetKey(KeyCode.LeftShift))
-                {
-                    currentMaxMoveSpeed = maxRunSpeed;
-                    currentRotationSpeed = runRotationSpeed;
-                    animator.SetBool("running", true);
-                }
+            }
+            if (Input.GetKey(KeyCode.A))
+            {
+                newMoveDirection += Quaternion.AngleAxis(-90, surfaceNormal) * forwardMove;
+            }
+            if (Input.GetKey(KeyCode.S))
+            {
+                newMoveDirection += -forwardMove;
+            }
+            if (Input.GetKey(KeyCode.D))
+            {
+                newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * forwardMove;
+            }
+            if (Input.GetKey(KeyCode.LeftShift))
+            {
+                currentMaxMoveSpeed = maxRunSpeed;
+                currentRotationSpeed = runRotationSpeed;
+                animator.SetBool("running", true);
             }
             if (!animator.GetBool("running"))
             {
-                if (Input.GetKey(KeyCode.A))
-                {
-                        newMoveDirection += Quaternion.AngleAxis(-90, surfaceNormal) * forwardMove;
-                }
-                if (Input.GetKey(KeyCode.S))
-                {
-                    newMoveDirection += -forwardMove;
-                }
-                if (Input.GetKey(KeyCode.D))
-                {
-                        newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * forwardMove;
-                }
             }
-            if (!Input.GetKey(KeyCode.LeftShift) || !Input.GetKey(KeyCode.W))
+            if (moveDirection == Vector3.zero)
+            {
+                animator.SetBool("running", false);
+            }
+            else
+            {
+                rotatedTransform.rotation = Quaternion.LookRotation(playerForward, Vector3.up);
+                    // Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(playerForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
+                //Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
+            }
+            if (!Input.GetKey(KeyCode.LeftShift))
             {
                 currentMaxMoveSpeed = maxMovementSpeed;
                 currentRotationSpeed = rotationSpeed;
