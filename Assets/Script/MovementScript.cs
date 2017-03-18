@@ -11,6 +11,9 @@ public class MovementScript : MonoBehaviour
     public float dashSpeed;
     public float jumpSpeed;
     public float fallAcceleration;
+    public float floatAcceleration;
+    public float maxFallSpeed;
+    public float minRiseSpeed;
     public float friction;
     public float airFriction;
     public CharacterController controller;
@@ -27,7 +30,9 @@ public class MovementScript : MonoBehaviour
     private Vector3 surfaceNormal;
     private Vector3 moveVelocity;
     private float currentMaxMoveSpeed;
+    private float currentFriction;
     private float currentRotationSpeed;
+    private float currentFallAcceleration;
 
     void Start()
     {
@@ -39,6 +44,8 @@ public class MovementScript : MonoBehaviour
         moveVelocity = Vector3.zero;
         currentMaxMoveSpeed = maxMovementSpeed;
         currentRotationSpeed = rotationSpeed;
+        currentFallAcceleration = fallAcceleration;
+        currentFriction = airFriction;
         jumped = false;
         onGround = false;
     }
@@ -145,15 +152,41 @@ public class MovementScript : MonoBehaviour
         Debug.DrawRay(transform.position, Vector3.down * 0.2f, Color.red);
         Debug.DrawRay(transform.position, surfaceNormal, Color.yellow);
 
-        Vector3 moveAccelVector = moveDirection * ((controller.isGrounded) ? moveAcceleration : airMoveAcceleration);
-        //Vector3 frictionVector = moveVelocity * ((controller.isGrounded) ? friction : airFriction);
+        Vector3 moveAccelVector = moveDirection * ((onGround) ? moveAcceleration : airMoveAcceleration);
 
         // NOTE : This doesn't use onGround because want to let it keep falling.
-        verticalSpeed += (controller.isGrounded) ? 0 : -fallAcceleration * Time.deltaTime;
+        if (controller.isGrounded)
+        {
+            verticalSpeed = 0;
+            currentFriction = friction;
+        }
+        else
+        {
+            verticalSpeed += -currentFallAcceleration * Time.fixedDeltaTime;
+            currentFriction = airFriction;
+        }
+        if (verticalSpeed > 0)
+        {
+            if (verticalSpeed < minRiseSpeed)
+            {
+                currentFallAcceleration = floatAcceleration;
+            }
+        }
+        else if (verticalSpeed < 0)
+        {
+            if (verticalSpeed < -minRiseSpeed)
+            {
+                currentFallAcceleration = fallAcceleration;
+            }
+        }
+        if (verticalSpeed < -maxFallSpeed)
+        {
+            verticalSpeed = -maxFallSpeed;
+        }
 
-        moveVelocity += moveAccelVector;
-        moveVelocity = Vector3.MoveTowards(moveVelocity, Vector3.zero, ((controller.isGrounded)? friction : airFriction) * Time.fixedDeltaTime);
-        //moveVelocity -= frictionVector;
+        moveVelocity += moveAccelVector * Time.fixedDeltaTime;
+        moveVelocity = Vector3.MoveTowards(moveVelocity, Vector3.zero, currentFriction * Time.fixedDeltaTime);
+
         if (state.idle && moveVelocity.magnitude > currentMaxMoveSpeed)
         {
             moveVelocity = moveVelocity.normalized * currentMaxMoveSpeed;
