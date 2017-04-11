@@ -122,8 +122,8 @@ public class CameraScript : MonoBehaviour
             }
         }
 
-        // 2. Let distance increase if player is moving away from camera
-        if (movement.GetMoveVelocity().magnitude != 0)
+        // 2. Let camera gradually rotate to upstraight if player is running
+        if (movement.running)
         {
             //Vector3 velocityRelativeToCamera = Vector3.Project(movement.GetMoveVelocity(), vectorToPosition);
             if (camera.transform.up != movement.GetSurfaceNormal())
@@ -133,8 +133,8 @@ public class CameraScript : MonoBehaviour
             }
         }
 
-        // 3. Let distance increase if player is moving away from camera
-        if (movement.GetMoveVelocity().magnitude != 0)
+        // 3. Let distance increase if player is running
+        if (movement.running)
         {
             Vector3 velocityRelativeToCamera = Vector3.Project(movement.GetMoveVelocity(), vectorToPosition);
             if (Vector3.Dot(vectorToPosition, velocityRelativeToCamera) > 0)

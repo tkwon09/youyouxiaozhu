@@ -26,6 +26,7 @@ public class MovementScript : MonoBehaviour
     private float verticalSpeed;
     private bool jumped;
     private bool onGround;
+    public bool running;
 
     private Vector3 surfaceNormal;
     private Vector3 moveVelocity;
@@ -78,6 +79,7 @@ public class MovementScript : MonoBehaviour
             {
                 currentMaxMoveSpeed = maxRunSpeed;
                 currentRotationSpeed = runRotationSpeed;
+                running = true;
                 animator.SetBool("running", true);
             }
             if (!animator.GetBool("running"))
@@ -85,6 +87,7 @@ public class MovementScript : MonoBehaviour
             }
             if (moveDirection == Vector3.zero)
             {
+                running = false;
                 animator.SetBool("running", false);
             }
             else
@@ -97,6 +100,7 @@ public class MovementScript : MonoBehaviour
             {
                 currentMaxMoveSpeed = maxMovementSpeed;
                 currentRotationSpeed = rotationSpeed;
+                running = false;
                 animator.SetBool("running", false);
             }
             if (onGround)
