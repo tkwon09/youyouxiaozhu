@@ -122,7 +122,7 @@ public class CameraScript : MonoBehaviour
             }
         }
 
-        // 2. Let camera gradually rotate to upstraight if player is running
+        // 2. Let camera gradually rotate to back if player is running
         if (movement.running)
         {
             //Vector3 velocityRelativeToCamera = Vector3.Project(movement.GetMoveVelocity(), vectorToPosition);

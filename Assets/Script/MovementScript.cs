@@ -10,6 +10,7 @@ public class MovementScript : MonoBehaviour
     public float maxRunSpeed;
     public float dashSpeed;
     public float jumpSpeed;
+    public float climbSpeed;
     public float fallAcceleration;
     public float floatAcceleration;
     public float maxFallSpeed;
@@ -27,6 +28,7 @@ public class MovementScript : MonoBehaviour
     private bool jumped;
     private bool onGround;
     public bool running;
+    bool climbing = false;
 
     private Vector3 surfaceNormal;
     private Vector3 moveVelocity;
@@ -34,6 +36,7 @@ public class MovementScript : MonoBehaviour
     private float currentFriction;
     private float currentRotationSpeed;
     private float currentFallAcceleration;
+
 
     void Start()
     {
@@ -88,10 +91,16 @@ public class MovementScript : MonoBehaviour
             if (moveDirection == Vector3.zero)
             {
                 running = false;
+                if (climbing)
+                {
+                    climbing = false;
+                    rotatedTransform.rotation = Quaternion.Euler(0, rotatedTransform.rotation.y, rotatedTransform.rotation.z);
+                }
                 animator.SetBool("running", false);
             }
             else
             {
+                if(!climbing)
                 rotatedTransform.rotation = Quaternion.LookRotation(playerForward, Vector3.up);
                     // Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(playerForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
                 //Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
@@ -101,6 +110,11 @@ public class MovementScript : MonoBehaviour
                 currentMaxMoveSpeed = maxMovementSpeed;
                 currentRotationSpeed = rotationSpeed;
                 running = false;
+                if (climbing)
+                {
+                    climbing = false;
+                    rotatedTransform.rotation = Quaternion.Euler(0, rotatedTransform.rotation.y, rotatedTransform.rotation.z);
+                }
                 animator.SetBool("running", false);
             }
             if (onGround)
@@ -211,7 +225,19 @@ public class MovementScript : MonoBehaviour
         //agent.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
         controller.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
     }
-
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (!running)
+            return;
+        WallScript wscript = hit.gameObject.GetComponent<WallScript>();
+        if (wscript && wscript.camDirection == WallScript.CameraDirection.Horizontal)
+        {
+            verticalSpeed = climbSpeed;
+            climbing = true;
+            rotatedTransform.rotation = Quaternion.Euler(-90, rotatedTransform.rotation.y, rotatedTransform.rotation.z);
+            
+        }
+    }
     public Vector3 GetMoveVelocity()
     {
         return moveVelocity;
