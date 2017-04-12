@@ -36,6 +36,7 @@ public class MovementScript : MonoBehaviour
     private float currentFriction;
     private float currentRotationSpeed;
     private float currentFallAcceleration;
+    float climbAngle;
 
 
     void Start()
@@ -94,14 +95,19 @@ public class MovementScript : MonoBehaviour
                 if (climbing)
                 {
                     climbing = false;
-                    rotatedTransform.rotation = Quaternion.Euler(0, rotatedTransform.rotation.y, rotatedTransform.rotation.z);
+                    rotatedTransform.rotation = Quaternion.Euler(0, rotatedTransform.rotation.eulerAngles.y, rotatedTransform.rotation.eulerAngles.z);
                 }
                 animator.SetBool("running", false);
             }
             else
             {
-                if(!climbing)
-                rotatedTransform.rotation = Quaternion.LookRotation(playerForward, Vector3.up);
+                if (climbing)
+                {
+                    Quaternion q = Quaternion.LookRotation(playerForward, Vector3.up);
+                    rotatedTransform.rotation = Quaternion.Euler(climbAngle, q.eulerAngles.y,q.eulerAngles.z);
+                }
+                else
+                    rotatedTransform.rotation = Quaternion.LookRotation(playerForward, Vector3.up);
                     // Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(playerForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
                 //Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
             }
@@ -113,7 +119,7 @@ public class MovementScript : MonoBehaviour
                 if (climbing)
                 {
                     climbing = false;
-                    rotatedTransform.rotation = Quaternion.Euler(0, rotatedTransform.rotation.y, rotatedTransform.rotation.z);
+                    rotatedTransform.rotation = Quaternion.Euler(0, rotatedTransform.rotation.eulerAngles.y, rotatedTransform.rotation.eulerAngles.z);
                 }
                 animator.SetBool("running", false);
             }
@@ -227,6 +233,7 @@ public class MovementScript : MonoBehaviour
     }
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        Debug.DrawRay(transform.position, hit.normal, Color.green);
         if (!running)
             return;
         WallScript wscript = hit.gameObject.GetComponent<WallScript>();
@@ -234,8 +241,7 @@ public class MovementScript : MonoBehaviour
         {
             verticalSpeed = climbSpeed;
             climbing = true;
-            rotatedTransform.rotation = Quaternion.Euler(-90, rotatedTransform.rotation.y, rotatedTransform.rotation.z);
-            
+            climbAngle = -Vector3.Angle(transform.up, hit.normal);
         }
     }
     public Vector3 GetMoveVelocity()
