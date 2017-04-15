@@ -22,6 +22,7 @@ public class MovementScript : MonoBehaviour
     public Transform cameraTransform;
     public Animator animator;
     public State state;
+    public bool canMove = true;
 
     private Vector3 moveDirection;
     private float verticalSpeed;
@@ -31,6 +32,7 @@ public class MovementScript : MonoBehaviour
     bool climbing = false;
 
     private Vector3 surfaceNormal;
+    Vector3 climbNormal;
     private Vector3 moveVelocity;
     private float currentMaxMoveSpeed;
     private float currentFriction;
@@ -57,27 +59,36 @@ public class MovementScript : MonoBehaviour
 
     void Update()
     {
+        if (!canMove)
+            return;
         Vector3 newMoveDirection = Vector3.zero;
         if (state.idle)
         {
             Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up);
-            Vector3 playerForward = Vector3.ProjectOnPlane(moveDirection, Vector3.up);
-            Vector3 forwardMove = Vector3.ProjectOnPlane(cameraForward, surfaceNormal).normalized;
+            Vector3 moveForward = Vector3.ProjectOnPlane(moveDirection, Vector3.up);
+            Vector3 playerForward = rotatedTransform.forward;
+            Vector3 camforwardMove = Vector3.ProjectOnPlane(cameraForward, surfaceNormal).normalized;
             if (Input.GetKey(KeyCode.W))
             {
-                newMoveDirection += forwardMove;
+                newMoveDirection += camforwardMove;
             }
             if (Input.GetKey(KeyCode.A))
             {
-                newMoveDirection += Quaternion.AngleAxis(-90, surfaceNormal) * forwardMove;
+                if (climbing)
+                    newMoveDirection += Quaternion.AngleAxis(-90, rotatedTransform.up) * playerForward;
+                else
+                    newMoveDirection += Quaternion.AngleAxis(-90, surfaceNormal) * camforwardMove;
             }
             if (Input.GetKey(KeyCode.S))
             {
-                newMoveDirection += -forwardMove;
+                newMoveDirection += -camforwardMove;
             }
             if (Input.GetKey(KeyCode.D))
             {
-                newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * forwardMove;
+                if (climbing)
+                    newMoveDirection += Quaternion.AngleAxis(90, rotatedTransform.up) * playerForward;
+                else
+                    newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * camforwardMove;
             }
             if (Input.GetKey(KeyCode.LeftShift))
             {
@@ -103,11 +114,13 @@ public class MovementScript : MonoBehaviour
             {
                 if (climbing)
                 {
-                    Quaternion q = Quaternion.LookRotation(playerForward, Vector3.up);
+                    //Vector3.Angle(climb,moveForward,
+                    Quaternion q = Quaternion.LookRotation(moveForward, Vector3.up);
                     rotatedTransform.rotation = Quaternion.Euler(climbAngle, q.eulerAngles.y,q.eulerAngles.z);
+                    //newMoveDirection += climbSpeed * rotatedTransform.forward;
                 }
                 else
-                    rotatedTransform.rotation = Quaternion.LookRotation(playerForward, Vector3.up);
+                    rotatedTransform.rotation = Quaternion.LookRotation(moveForward, Vector3.up);
                     // Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(playerForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
                 //Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
             }
@@ -168,6 +181,7 @@ public class MovementScript : MonoBehaviour
         if (onGround)
         {
             surfaceNormal = hit.normal;
+
         }
         else
         {
@@ -175,9 +189,7 @@ public class MovementScript : MonoBehaviour
         }
         Debug.DrawRay(transform.position, Vector3.down * 0.2f, Color.red);
         Debug.DrawRay(transform.position, surfaceNormal, Color.yellow);
-
         Vector3 moveAccelVector = moveDirection * ((onGround) ? moveAcceleration : airMoveAcceleration);
-
         // NOTE : This doesn't use onGround because want to let it keep falling.
         if (controller.isGrounded)
         {
@@ -186,6 +198,7 @@ public class MovementScript : MonoBehaviour
         }
         else
         {
+            //if(!climbing)
             verticalSpeed += -currentFallAcceleration * Time.fixedDeltaTime;
             currentFriction = airFriction;
         }
@@ -229,19 +242,29 @@ public class MovementScript : MonoBehaviour
         }
 
         //agent.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
-        controller.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
+        if (climbing)
+        {
+            Vector3 normSpeed = Vector3.ProjectOnPlane(moveVelocity, -climbNormal);
+            Vector3 tangentialSpeed = moveVelocity - normSpeed;
+            Debug.DrawRay(transform.position, normSpeed, Color.yellow);
+            Debug.DrawRay(transform.position, tangentialSpeed, Color.green);
+            controller.Move((normSpeed + tangentialSpeed + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
+        }
+        else
+            controller.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
     }
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        Debug.DrawRay(transform.position, hit.normal, Color.green);
+        climbNormal = hit.normal;
         if (!running)
             return;
         WallScript wscript = hit.gameObject.GetComponent<WallScript>();
         if (wscript && wscript.camDirection == WallScript.CameraDirection.Horizontal)
         {
+            //newMoveDirection += climbSpeed*rotatedTransform.forward;
             verticalSpeed = climbSpeed;
             climbing = true;
-            climbAngle = -Vector3.Angle(transform.up, hit.normal);
+            climbAngle = -Vector3.Angle(transform.up, climbNormal);
         }
     }
     public Vector3 GetMoveVelocity()

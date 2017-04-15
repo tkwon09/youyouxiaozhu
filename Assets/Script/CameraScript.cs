@@ -81,46 +81,46 @@ public class CameraScript : MonoBehaviour
         // 1. Check if player movement will block
         // TODO : Change horizontal avoidance to prefer moving behind the player.
         Vector3 vectorToPosition = follow.position - transform.position;
-        bool notHit = true;
-        for (int i = 1; i < obstacleAvoidanceIterations && notHit; ++i)
-        {
-            Vector3 vectorToNewPosition = follow.position + movement.GetMoveVelocity() * i * Time.deltaTime - transform.position;
+        //bool notHit = true;
+        //for (int i = 1; i < obstacleAvoidanceIterations && notHit; ++i)
+        //{
+        //    Vector3 vectorToNewPosition = follow.position + movement.GetMoveVelocity() * i * Time.deltaTime - transform.position;
             
-            Ray playerRay = new Ray(transform.position, vectorToNewPosition);
-            RaycastHit rayHit;
-            if (Physics.Raycast(playerRay, out rayHit, vectorToNewPosition.magnitude))
-            {
-                if (rayHit.collider.gameObject.GetComponent<WallScript>())
-                {
-                    // Check cross product between vectors. If normalized cross product - surfaceNormal = zero vector, then it's positive x movement.
-                    Vector3 crossTest = Vector3.Cross(Vector3.ProjectOnPlane(vectorToPosition, movement.GetSurfaceNormal()), Vector3.ProjectOnPlane(vectorToNewPosition, movement.GetSurfaceNormal())).normalized;
-                    float sign = (movement.GetSurfaceNormal() - crossTest == Vector3.zero) ? 1 : -1;
-                    x += sign * movement.GetMoveVelocity().magnitude * cameraAvoidSpeed * Time.deltaTime * avoidanceStrength * (obstacleAvoidanceIterations - i) / (obstacleAvoidanceIterations - 1);
-                    notHit = false;
-                }
-            }
-            Debug.DrawRay(new Vector3(transform.position.x, 0, transform.position.z), Vector3.ProjectOnPlane(vectorToNewPosition, Vector3.up), Color.cyan);
-        }
+        //    Ray playerRay = new Ray(transform.position, vectorToNewPosition);
+        //    RaycastHit rayHit;
+        //    if (Physics.Raycast(playerRay, out rayHit, vectorToNewPosition.magnitude))
+        //    {
+        //        if (rayHit.collider.gameObject.GetComponent<WallScript>())
+        //        {
+        //            // Check cross product between vectors. If normalized cross product - surfaceNormal = zero vector, then it's positive x movement.
+        //            Vector3 crossTest = Vector3.Cross(Vector3.ProjectOnPlane(vectorToPosition, movement.GetSurfaceNormal()), Vector3.ProjectOnPlane(vectorToNewPosition, movement.GetSurfaceNormal())).normalized;
+        //            float sign = (movement.GetSurfaceNormal() - crossTest == Vector3.zero) ? 1 : -1;
+        //            x += sign * movement.GetMoveVelocity().magnitude * cameraAvoidSpeed * Time.deltaTime * avoidanceStrength * (obstacleAvoidanceIterations - i) / (obstacleAvoidanceIterations - 1);
+        //            notHit = false;
+        //        }
+        //    }
+        //    Debug.DrawRay(new Vector3(transform.position.x, 0, transform.position.z), Vector3.ProjectOnPlane(vectorToNewPosition, Vector3.up), Color.cyan);
+        //}
         
-        notHit = true;
-        for (int i = 1; i < obstacleAvoidanceIterations && notHit; ++i)
-        {
-            Vector3 vectorToNewPosition = follow.position + movement.GetMoveVelocity() * i * Time.deltaTime - transform.position;
+        //notHit = true;
+        //for (int i = 1; i < obstacleAvoidanceIterations && notHit; ++i)
+        //{
+        //    Vector3 vectorToNewPosition = follow.position + movement.GetMoveVelocity() * i * Time.deltaTime - transform.position;
 
-            Ray playerRay = new Ray(transform.position, vectorToNewPosition);
-            RaycastHit rayHit;
-            if (Physics.Raycast(playerRay, out rayHit, vectorToNewPosition.magnitude))
-            {
-                WallScript wallScript = rayHit.collider.gameObject.GetComponent<WallScript>();
-                if (wallScript && wallScript.camDirection != WallScript.CameraDirection.Horizontal)
-                {
-                    // Either dodge the obstacle by moving up or down
-                    float sign = (wallScript.camDirection == WallScript.CameraDirection.Up) ? 1 : -1;
-                    y += sign * movement.GetMoveVelocity().magnitude * cameraAvoidSpeed * Time.deltaTime * avoidanceStrength * (obstacleAvoidanceIterations - i) / (obstacleAvoidanceIterations - 1);
-                    notHit = false;
-                }
-            }
-        }
+        //    Ray playerRay = new Ray(transform.position, vectorToNewPosition);
+        //    RaycastHit rayHit;
+        //    if (Physics.Raycast(playerRay, out rayHit, vectorToNewPosition.magnitude))
+        //    {
+        //        WallScript wallScript = rayHit.collider.gameObject.GetComponent<WallScript>();
+        //        if (wallScript && wallScript.camDirection != WallScript.CameraDirection.Horizontal)
+        //        {
+        //            // Either dodge the obstacle by moving up or down
+        //            float sign = (wallScript.camDirection == WallScript.CameraDirection.Up) ? 1 : -1;
+        //            y += sign * movement.GetMoveVelocity().magnitude * cameraAvoidSpeed * Time.deltaTime * avoidanceStrength * (obstacleAvoidanceIterations - i) / (obstacleAvoidanceIterations - 1);
+        //            notHit = false;
+        //        }
+        //    }
+        //}
 
         // 2. Let camera gradually rotate to back if player is running
         if (movement.running)
