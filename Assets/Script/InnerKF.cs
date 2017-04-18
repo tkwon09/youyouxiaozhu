@@ -5,21 +5,24 @@ using UnityEngine.UI;
 
 public class InnerKF : MonoBehaviour
 {
-    public string IKFname;
-    int level;
+    public const int initialHealth = 10;
+    public const int initialStamina = 10;
+
+    public string ikfName;
+    public int level;
 
     // unchanged data
     public Image icon;
     public string desc;
     public struct plus
     {
-        int healthPlus;
-        int chiPlus;
-        int IPPlus;
-        int staminaPlus;
+        public int healthPlus;
+        public int chiPlus;
+        public int IPPlus;
+        public int staminaPlus;
     }
-    public plus[] levelPlus = new plus[9];
 
+    public plus levelPlus;
 
 	// Use this for initialization
 	void Start ()

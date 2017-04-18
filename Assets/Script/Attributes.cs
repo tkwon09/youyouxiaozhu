@@ -20,11 +20,17 @@ public class Attributes : MonoBehaviour
 
     Transform buffs;
 
+    InnerKF.plus IKFplus;
+
     // Use this for initialization
     void Start()
     {
         buffs = transform.Find("Buffs");
-        AddBuff("Stun", 5);
+        //IKFplus = transform.parent.Find("IKF").gameObject.GetComponent<InnerKF>().levelPlus;
+        maxHealth = InnerKF.initialHealth + IKFplus.healthPlus;
+        maxStamina = InnerKF.initialStamina + IKFplus.staminaPlus;
+        maxChi = IKFplus.chiPlus;
+        IP = IKFplus.IPPlus;
     }
 
     // Update is called once per frame
@@ -49,6 +55,19 @@ public class Attributes : MonoBehaviour
                 }
             }
         }
+    }
+
+    public int[] attrSave()
+    {
+        int[] save = new int[] {KP,fame,dressing};
+        return save;
+    }
+
+    public void attrLoad(int[] data)
+    {
+        KP = data[0];
+        fame = data[1];
+        dressing = data[2];
     }
 
     void AddBuff(string name, float time)
