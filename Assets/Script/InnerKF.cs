@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class InnerKF : MonoBehaviour
 {
-    public const int initialHealth = 10;
-    public const int initialStamina = 10;
-
     public string ikfName;
     public int level;
 
@@ -35,4 +32,5 @@ public class InnerKF : MonoBehaviour
     {
 		
 	}
+
 }

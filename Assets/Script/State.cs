@@ -9,6 +9,7 @@ public class State : MonoBehaviour {
     public int attackPhase = 0;
     public bool runAttacked = false;
     public Animator anim;
+    public Attack attack;
 
     // Use this for initialization
     void Start () {
@@ -35,7 +36,14 @@ public class State : MonoBehaviour {
         anim.ResetTrigger("attack3");
         anim.ResetTrigger("guard");
     }
-
+    void isAttacking()
+    {
+        attack.isAttack = true;
+    }
+    void endAttacking()
+    {
+        attack.isAttack = false;
+    }
     void runAttack()
     {
         runAttacked = true;

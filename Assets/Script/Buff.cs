@@ -4,7 +4,6 @@ using UnityEngine;
 
 interface setbuffparam
 {
-    void setisTemp(bool istemp);
     void setTime(float durtime);
 }
 
@@ -17,22 +16,23 @@ public abstract class Buff : MonoBehaviour
     public float counter = -1f;
 
     // called in Update()
-    public abstract void Function();
+    public abstract void UpdateFunction();
     // called in Start()
+    public abstract void StartFunction();
     public virtual void Disappear()
     {
-            Destroy(gameObject, time);
+        Destroy(gameObject, time);
     }
 
-    //public Buff(buffType ty, bool iT, float ti)
-    //{
-    //    type = ty;
-    //    isTemp = iT;
-    //    time = ti;
-    //}
+    public Buff(buffType ty, bool iT, float ti = 0)
+    {
+        type = ty;
+        isTemp = iT;
+        time = ti;
+    }
 
-	// Use this for initialization
-	public virtual void Start ()
+    // Use this for initialization
+    public virtual void Start ()
     {
         if (isTemp)
         {

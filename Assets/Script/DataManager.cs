@@ -6,21 +6,28 @@ using System.IO;
 using System;
 using System.Text.RegularExpressions;
 
+/// At the beginning of the game, load resources of the game first.
+/// Then load the saved data and create respective object and attach
+/// corresponding script.
+/// This is a class holding necessary resources for the game
 public class DataManager : MonoBehaviour {
 
+    public GameObject Player;
     Attributes playerAttr;
-    InnerKF playerIKF;
+    
+    PlayerData loadeddata = new PlayerData();
 
-    Dictionary<string, Dictionary<int, int[]>> allIKF = new Dictionary<string, Dictionary<int, int[]>>();
+    Dictionary<string, Dictionary<int, int[]>> IKFLevelPlus = new Dictionary<string, Dictionary<int, int[]>>();
+    Dictionary<string, string> IKFDesc = new Dictionary<string, string>();
 
 	// Use this for initialization
 	void Start ()
     {
-        GameObject Player = GameObject.Find("Player");
         playerAttr = Player.GetComponent<Attributes>();
-        playerIKF = Player.GetComponent<InnerKF>();
+        
         LoadResources();
-
+        LoadData();
+        //SaveData();
     }
 	
 	// Update is called once per frame
@@ -40,6 +47,9 @@ public class DataManager : MonoBehaviour {
 
     void SaveData()
     {
+        InnerKF playerIKF;
+        playerIKF = Player.GetComponent<InnerKF>();
+
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Create(Application.persistentDataPath + "/playerData.dat");
 
@@ -61,49 +71,97 @@ public class DataManager : MonoBehaviour {
         {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Application.persistentDataPath + "/playerData.dat", FileMode.Open);
-            PlayerData data = (PlayerData)bf.Deserialize(file);
+            loadeddata = (PlayerData)bf.Deserialize(file);
             file.Close();
 
-            playerIKF.ikfName = data.ikfName;
-            data.ikfLevel = playerIKF.level;
+            // Load attributes
             int[] attr = new int[3];
-            attr[0] = data.KP;
-            attr[1] = data.fame;
-            attr[2] = data.dressing;
+            attr[0] = loadeddata.KP;
+            attr[1] = loadeddata.fame;
+            attr[2] = loadeddata.dressing;
             playerAttr.attrLoad(attr);
-            
+            // Load player's innerKF
+            AddIKF(loadeddata.ikfName, loadeddata.ikfLevel);
+        }
+        else
+        {
+            // First time, start a new data
+            // Load attributes
+            int[] attr = new int[3];
+            attr[0] = 0;
+            attr[1] = 0;
+            attr[2] = 0;
+            playerAttr.attrLoad(attr);
+            playerAttr.attrChange(0, Attributes.initialHealth);
+            playerAttr.attrChange(1, Attributes.initialChi);
+            playerAttr.attrChange(2, Attributes.initialStamina);
+            playerAttr.attrChange(3, 0);
         }
     }
-    public int[] QianKunDaNuoYi = new int[36];
 
     void LoadResources()
     {
 
         //playerIKF.levelPlus;
-        TextAsset jsonFile = Resources.Load<TextAsset>("IKFList");
-        string[] lines = jsonFile.text.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+        LoadIKFLevelPlus();
+        LoadIKFDesc();
+    }
+    void AddIKF(string ikfName, int level)
+    {
+        Player.GetComponent<InnerKF>();
+        InnerKF tempIKF = Player.GetComponent<InnerKF>();
+        InnerKF.plus tempPlus = new InnerKF.plus();
+        tempPlus.healthPlus = IKFLevelPlus[ikfName][level][0];
+        tempPlus.chiPlus = IKFLevelPlus[ikfName][level][1];
+        tempPlus.IPPlus = IKFLevelPlus[ikfName][level][2];
+        tempPlus.staminaPlus = IKFLevelPlus[ikfName][level][3];
+        tempIKF.levelPlus = tempPlus;
+        tempIKF.ikfName = ikfName;
+        tempIKF.level = level;
+        tempIKF.desc = IKFDesc[ikfName];
+        // Let attributes load IKF plus
+        playerAttr.attrLoadIKF();
+        // Add corresponding ikf buff
+        playerAttr.AddBuff(ikfName, false);
+    }
+    void LoadIKFLevelPlus()
+    {
+        TextAsset textFile = Resources.Load<TextAsset>("Text/IKFLevelPlus");
+        string[] lines = textFile.text.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
         string mainPattern = @"(\w+).([\d,]+).([\d,]+).([\d,]+).([\d,]+).([\d,]+).([\d,]+).([\d,]+).([\d,]+).([\d,]+)";
         string subPattern = @"(\d+).(\d+).(\d+).(\d+)";
-        foreach(string s in lines)
+        foreach (string s in lines)
         {
-            foreach(Match m in Regex.Matches(s,mainPattern))
+            foreach (Match m in Regex.Matches(s, mainPattern))
             {
                 string kfName = m.Groups[1].Value;
-                allIKF[kfName] = new Dictionary<int, int[]>();
-                for (int i = 2;i <= 10;i++)
+                IKFLevelPlus[kfName] = new Dictionary<int, int[]>();
+                for (int i = 2; i <= 10; i++)
                 {
                     string temp = m.Groups[i].Value;
-                    foreach(Match n in Regex.Matches(temp,subPattern))
+                    foreach (Match n in Regex.Matches(temp, subPattern))
                     {
                         int[] tempArr = new int[4];
                         for (int j = 1; j <= 4; j++)
                             tempArr[j - 1] = Int32.Parse(n.Groups[j].Value);
-                        allIKF[kfName][i - 1] = new int[4];
-                        allIKF[kfName][i - 1] = tempArr;
+                        IKFLevelPlus[kfName][i - 1] = new int[4];
+                        IKFLevelPlus[kfName][i - 1] = tempArr;
                     }
                 }
             }
         }
     }
-
+    void LoadIKFDesc()
+    {
+        TextAsset textFile = Resources.Load<TextAsset>("Text/IKFDesc");
+        string[] lines = textFile.text.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+        string mainPattern = @"(\w+).([\w\s]+)";
+        foreach (string s in lines)
+        {
+            foreach (Match m in Regex.Matches(s, mainPattern))
+            {
+                IKFDesc[m.Groups[1].Value] = m.Groups[2].Value;
+            }
+        }
+    }
 }
