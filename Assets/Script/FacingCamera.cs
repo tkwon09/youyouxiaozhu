@@ -10,7 +10,7 @@ public class FacingCamera : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update ()
+	void FixedUpdate ()
     {
         Vector3 fwd = Camera.main.transform.forward;
         fwd.y = 0;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 public class Attributes : MonoBehaviour
 {
@@ -24,6 +25,8 @@ public class Attributes : MonoBehaviour
     Transform buffs;
     public Attack attack;
     public DataManager dataManager;
+    public Animator animator;
+    public Image Healthbar;
 
     InnerKF.plus IKFplus;
 
@@ -37,7 +40,7 @@ public class Attributes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
     }
     IEnumerator DebugAttr()
     {
@@ -54,6 +57,9 @@ public class Attributes : MonoBehaviour
         maxStamina = initialStamina + IKFplus.staminaPlus;
         maxChi = initialChi + IKFplus.chiPlus;
         IP = IKFplus.IPPlus;
+        health = maxHealth;
+        chi = maxChi;
+        stamina = maxStamina;
     }
 
     public int[] attrSave()
@@ -71,7 +77,7 @@ public class Attributes : MonoBehaviour
 
     public void attrChange(int index, int number)
     {
-        if (index < 0 || index > 6)
+        if (index < 0 || index > 9)
             return;
         switch(index)
         {
@@ -96,7 +102,46 @@ public class Attributes : MonoBehaviour
             case 6:
                 dressing = Mathf.Clamp(dressing + number, 0, 9999);
                 break;
+            case 7:
+                health = Mathf.Clamp(health + number, 1, maxHealth);
+                break;
+            case 8:
+                chi = Mathf.Clamp(chi + number, 0, maxChi);
+                break;
+            case 9:
+                stamina = Mathf.Clamp(stamina + number, 1, maxStamina);
+                break;
         }
+    }
+
+    public int attrGet(int index)
+    {
+        if (index < 0 || index > 6)
+            return -1;
+        switch (index)
+        {
+            case 0:
+                return maxHealth;
+            case 1:
+                return maxChi;
+            case 2:
+                return maxStamina;
+            case 3:
+                return IP;
+            case 4:
+                return KP;
+            case 5:
+                return fame;
+            case 6:
+                return dressing;
+            case 7:
+                return health;
+            case 8:
+                return chi;
+            case 9:
+                return stamina;
+        }
+        return -1;
     }
 
     public void AddBuff(Attack.buff buff)
@@ -122,8 +167,46 @@ public class Attributes : MonoBehaviour
             inter.setTime(time);
     }
 
+    public void TakeDamage(Attack.damage d)
+    {
+        int totalPD = 0;
+        int chiDamage = 0;
+        if (d.type == Attack.damageType.chi || d.type == Attack.damageType.blended)
+        {
+            chiDamage = d.cDamage - (int)(0.4f * IP);
+            totalPD = d.pDamage +  chiDamage;
+        }
+        else
+            totalPD = d.pDamage;
+        if (totalPD > 0)
+            animator.SetTrigger("gethurt");
+        health -= totalPD;
+        Healthbar.fillAmount = (float)health / maxHealth;
+    }
+
+    void OnTriggerEnter(Collider hit)
+    {
+
+    }
+
     public Attack GetAttack()
     {
         return attack;
+    }
+
+    public void PlayBlockAnim(int blocktype)
+    {
+        switch(blocktype)
+        {
+            case 0:
+                animator.SetTrigger("UpBlock");
+                break;
+            case 1:
+                animator.SetTrigger("MiddleBlock");
+                break;
+            case 2:
+                animator.SetTrigger("JumpEvade");
+                break;
+        }
     }
 }

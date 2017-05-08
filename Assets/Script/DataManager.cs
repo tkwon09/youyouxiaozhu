@@ -24,7 +24,6 @@ public class DataManager : MonoBehaviour {
 	void Start ()
     {
         playerAttr = Player.GetComponent<Attributes>();
-        
         LoadResources();
         LoadData();
         //SaveData();
@@ -102,7 +101,6 @@ public class DataManager : MonoBehaviour {
     void LoadResources()
     {
 
-        //playerIKF.levelPlus;
         LoadIKFLevelPlus();
         LoadIKFDesc();
     }
@@ -123,6 +121,22 @@ public class DataManager : MonoBehaviour {
         playerAttr.attrLoadIKF();
         // Add corresponding ikf buff
         playerAttr.AddBuff(ikfName, false);
+    }
+    public void AddIKF(string ikfName, int level, InnerKF ikf, Attributes attr)
+    {
+        InnerKF.plus tempPlus = new InnerKF.plus();
+        tempPlus.healthPlus = IKFLevelPlus[ikfName][level][0];
+        tempPlus.chiPlus = IKFLevelPlus[ikfName][level][1];
+        tempPlus.IPPlus = IKFLevelPlus[ikfName][level][2];
+        tempPlus.staminaPlus = IKFLevelPlus[ikfName][level][3];
+        ikf.levelPlus = tempPlus;
+        ikf.ikfName = ikfName;
+        ikf.level = level;
+        ikf.desc = IKFDesc[ikfName];
+        // Let attributes load IKF plus
+        attr.attrLoadIKF();
+        // Add corresponding ikf buff
+        attr.AddBuff(ikfName, false);
     }
     void LoadIKFLevelPlus()
     {

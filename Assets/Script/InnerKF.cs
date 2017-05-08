@@ -24,8 +24,9 @@ public class InnerKF : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-		
-	}
+        if (!CompareTag("Player"))
+            UpdateIKF(ikfName, level);
+    }
 	
 	// Update is called once per frame
 	void Update ()
@@ -33,4 +34,15 @@ public class InnerKF : MonoBehaviour
 		
 	}
 
+    void UpdateIKF(string ikfName, int level)
+    {
+        StartCoroutine(WaitForDict());
+        
+    }
+    IEnumerator WaitForDict()
+    {
+        yield return new WaitForSeconds(0.5f);
+        DataManager dm = GameObject.Find("DataManager").GetComponent<DataManager>();
+        dm.AddIKF(ikfName, level, this, gameObject.GetComponent<Attributes>());
+    }
 }

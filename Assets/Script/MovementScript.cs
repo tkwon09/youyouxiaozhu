@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class MovementScript : MonoBehaviour
 {
@@ -7,6 +8,7 @@ public class MovementScript : MonoBehaviour
     public float moveAcceleration;
     public float airMoveAcceleration;
     public float maxMovementSpeed;
+    public float maxBackSpeed;
     public float maxRunSpeed;
     public float dashSpeed;
     public float jumpSpeed;
@@ -29,7 +31,9 @@ public class MovementScript : MonoBehaviour
     private bool jumped;
     private bool onGround;
     public bool running;
-    bool climbing = false;
+    bool climbing;
+    bool backup;
+    public bool blocking;
 
     private Vector3 surfaceNormal;
     Vector3 climbNormal;
@@ -62,9 +66,9 @@ public class MovementScript : MonoBehaviour
         if (!canMove)
             return;
         Vector3 newMoveDirection = Vector3.zero;
+        Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up);
         if (state.idle)
         {
-            Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up);
             Vector3 moveForward = Vector3.ProjectOnPlane(moveDirection, Vector3.up);
             Vector3 playerForward = rotatedTransform.forward;
             Vector3 camforwardMove = Vector3.ProjectOnPlane(cameraForward, surfaceNormal).normalized;
@@ -81,6 +85,7 @@ public class MovementScript : MonoBehaviour
             }
             if (Input.GetKey(KeyCode.S))
             {
+                //currentMaxMoveSpeed = maxBackSpeed;
                 newMoveDirection += -camforwardMove;
             }
             if (Input.GetKey(KeyCode.D))
@@ -90,7 +95,8 @@ public class MovementScript : MonoBehaviour
                 else
                     newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * camforwardMove;
             }
-            if (Input.GetKey(KeyCode.LeftShift))
+
+            if (Input.GetKey(KeyCode.LeftShift) && !backup)
             {
                 currentMaxMoveSpeed = maxRunSpeed;
                 currentRotationSpeed = runRotationSpeed;
@@ -116,17 +122,42 @@ public class MovementScript : MonoBehaviour
                 {
                     //Vector3.Angle(climb,moveForward,
                     Quaternion q = Quaternion.LookRotation(moveForward, Vector3.up);
-                    rotatedTransform.rotation = Quaternion.Euler(climbAngle, q.eulerAngles.y,q.eulerAngles.z);
+                    rotatedTransform.rotation = Quaternion.Euler(climbAngle, q.eulerAngles.y, q.eulerAngles.z);
                     //newMoveDirection += climbSpeed * rotatedTransform.forward;
                 }
                 else
-                    rotatedTransform.rotation = Quaternion.LookRotation(moveForward, Vector3.up);
+                {
+                    if (Input.GetKey(KeyCode.S))
+                    {
+                        if (!backup)
+                        {
+                            backup = true;
+                            currentMaxMoveSpeed = maxBackSpeed;
+                        }
+                        rotatedTransform.rotation = Quaternion.LookRotation(-moveForward, Vector3.up);
+                    }
+                    else
+                    {
+                        if (backup)
+                        {
+                            rotatedTransform.rotation = Quaternion.LookRotation(-moveForward, Vector3.up);
+                            moveDirection = Vector3.zero;
+                            backup = false;
+                            currentMaxMoveSpeed = maxMovementSpeed;
+                        }
+                        else
+                            rotatedTransform.rotation = Quaternion.LookRotation(moveForward, Vector3.up);
+                    }
                     // Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(playerForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
-                //Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
+                    //Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
+                }
             }
-            if (!Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetKeyUp(KeyCode.LeftShift))
             {
-                currentMaxMoveSpeed = maxMovementSpeed;
+                if (backup)
+                    currentMaxMoveSpeed = maxBackSpeed;
+                else
+                    currentMaxMoveSpeed = maxMovementSpeed;                
                 currentRotationSpeed = rotationSpeed;
                 running = false;
                 if (climbing)
@@ -145,33 +176,15 @@ public class MovementScript : MonoBehaviour
             }
         }
         moveDirection = newMoveDirection.normalized;
-        animator.SetBool("walking", moveDirection != Vector3.zero);
 
-        if (Input.GetMouseButtonDown(0))
+        if (Vector3.Angle(cameraForward, moveDirection) > 90)
+            animator.SetBool("back", moveDirection != Vector3.zero);
+        else
         {
-            moveDirection = Vector3.zero;
-            switch (state.attackPhase)
-            {
-                case 0:
-                    animator.SetTrigger("attack1");
-                    state.attackPhase = 1;
-                    break;
-                case 1:
-                    animator.SetTrigger("attack2");
-                    state.attackPhase = 2;
-                    break;
-                case 2:
-                    animator.SetTrigger("attack3");
-                    state.attackPhase = 0;
-                    break;
-            }
+            animator.SetBool("walking", moveDirection != Vector3.zero);
+            animator.SetBool("back", false);
+        }
 
-        }
-        if (Input.GetMouseButtonDown(1))
-        {
-            moveDirection = Vector3.zero;
-            animator.SetTrigger("guard");
-        }
     }
 
     void FixedUpdate()
@@ -255,6 +268,7 @@ public class MovementScript : MonoBehaviour
     }
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        #region Climb
         climbNormal = hit.normal;
         if (!running)
             return;
@@ -266,6 +280,8 @@ public class MovementScript : MonoBehaviour
             climbing = true;
             climbAngle = -Vector3.Angle(transform.up, climbNormal);
         }
+        #endregion
+
     }
     public Vector3 GetMoveVelocity()
     {
