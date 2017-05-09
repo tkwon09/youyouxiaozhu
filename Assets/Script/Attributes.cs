@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class Attributes : MonoBehaviour
 {
@@ -26,7 +27,13 @@ public class Attributes : MonoBehaviour
     public Attack attack;
     public DataManager dataManager;
     public Animator animator;
-    public Image Healthbar;
+    public Image healthBar;
+    public Image chiBar;
+    public Image staminaBar;
+    public GameObject swordChi;
+    public GameObject healthPop;
+    public GameObject chiPop;
+    public bool chiOn;
 
     InnerKF.plus IKFplus;
 
@@ -180,8 +187,127 @@ public class Attributes : MonoBehaviour
             totalPD = d.pDamage;
         if (totalPD > 0)
             animator.SetTrigger("gethurt");
-        health -= totalPD;
-        Healthbar.fillAmount = (float)health / maxHealth;
+        //Debug.Log(totalPD);
+        Decrease(0, totalPD);
+        GameObject hpop = Instantiate(healthPop, healthBar.transform) as GameObject;
+        //hpop.transform.position = new Vector3(0.125f, 0, 0);
+        hpop.GetComponent<Text>().text = "-" + totalPD.ToString();
+        Destroy(hpop, 1.25f);
+        if (chiDamage != 0)
+        {
+            Decrease(1, chiDamage);
+            GameObject cpop = Instantiate(chiPop,chiBar.transform) as GameObject;
+            cpop.GetComponent<Text>().text = "-" + chiDamage.ToString();
+            Destroy(cpop, 1.25f);
+        }
+    }
+
+    public void DamagePop(int index)
+    {
+        
+    }
+
+    public bool StartChi()
+    {
+        if (chi >= 5)
+        {
+            chiOn = true;
+            swordChi.SetActive(true);
+            attack.AddCurrentDamage(1,(int)(IP * 0.5f));
+            StartCoroutine(ChiDec());
+            return true;
+        }
+        else
+            return false;
+    }
+
+    public void EndChi()
+    {
+        chiOn = false;
+        swordChi.SetActive(false);
+        attack.ResetWholeDamage();
+    }
+
+    IEnumerator ChiDec()
+    {
+        while(chiOn)
+        {
+            yield return new WaitForSeconds(1);
+            if (!Decrease(1,10))
+            {
+                chiOn = false;
+                attack.ResetWholeDamage();
+            }
+        }
+    }
+
+    bool Decrease(int index, int amount = 1)
+    {
+        switch (index)
+        {
+            case 0:
+                if (health <= amount)
+                {
+                    health = 0;
+                    UpdateUI();
+                    return false;
+                }
+                else
+                {
+                    health -= amount;
+                    UpdateUI();
+                    return true;
+                }
+            case 1:
+                if (chi <= amount)
+                {
+                    chi = 0;
+                    UpdateUI(1);
+                    return false;
+                }
+                else
+                {
+                    chi -= amount;
+                    UpdateUI(1);
+                    return true;
+                }
+            case 2:
+                if (stamina <= amount)
+                {
+                    stamina = 0;
+                    UpdateUI(2);
+                    return false;
+                }
+                else
+                {
+                    stamina -= amount;
+                    UpdateUI(2);
+                    return true;
+                }
+            default:
+                return true;
+        }
+    }
+
+    void UpdateUI(int index = 0)
+    {
+        switch (index)
+        {
+            case 0:
+                healthBar.fillAmount = (float)health / maxHealth;
+                break;
+            case 1:
+                chiBar.fillAmount = (float)chi / maxChi;
+                break;
+            case 2:
+                staminaBar.fillAmount = (float)stamina / maxStamina;
+                break;
+            default:
+                healthBar.fillAmount = (float)health / maxHealth;
+                chiBar.fillAmount = (float)chi / maxChi;
+                staminaBar.fillAmount = (float)stamina / maxStamina;
+                break;
+        }
     }
 
     void OnTriggerEnter(Collider hit)

@@ -8,8 +8,7 @@ public class CombatControl : MonoBehaviour {
     public Attack attack;
     public Attributes attr;
     public State state;
-
-    int maxAttackPhase;
+    
 
 	// Use this for initialization
 	void Start ()
@@ -21,29 +20,29 @@ public class CombatControl : MonoBehaviour {
     IEnumerator Initialize()
     {
         yield return new WaitForSeconds(0.5f);
-        maxAttackPhase = attack.maxAttackPhase;
     }
 	// Update is called once per frame
 	void Update ()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (state.attackPhase == maxAttackPhase)
+            if (state.attackPhase == state.maxAttackPhase)
                 return;
-            else
+            
+            switch (state.attackPhase)
             {
-                if (Input.GetKey(KeyCode.W))
-                {
-                    animator.SetTrigger("attack3");
-                }
-                else if (Input.GetKey(KeyCode.S))
-                {
-                    animator.SetTrigger("attack2");
-                }
-                else
-                {
+                case 0:
                     animator.SetTrigger("attack1");
-                }
+                    break;
+                case 1:
+                    animator.SetTrigger("attack2");
+                    break;
+                case 2:
+                    animator.SetTrigger("attack3");
+                    break;
+                default:
+                    animator.SetTrigger("attack1");
+                    break;
             }
         }
 
@@ -54,7 +53,21 @@ public class CombatControl : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.F))
         {
-            animator.SetTrigger("fu");
+            if (!attr.chiOn && attr.StartChi())
+            {
+                animator.SetTrigger("fu");
+            }
+            else if(attr.chiOn)
+            {
+                attr.EndChi();
+            }
+        }
+
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            if (!attr.chiOn)
+                return;
+            animator.SetTrigger("frontcast");
         }
     }
 }

@@ -16,12 +16,12 @@ public class Attack : MonoBehaviour
     public List<GameObject> hitTargets = new List<GameObject>();
     public int maxAttackPhase;
 
-    damageType currentDamageType;
     Animator animator;
     State state;
     Attributes attr;
     GameObject player;
-    public int baseDamage;
+    public int weaponDamage;
+
 
     public float attackPhaseBonus = 0.2f;
 
@@ -68,6 +68,7 @@ public class Attack : MonoBehaviour
 
     public List<wbuff> wbuffs = new List<wbuff>();
     public List<buff> buffs = new List<buff>();
+    damage baseDamage;
     damage currentDamage;
 
     // Use this for initialization
@@ -85,8 +86,10 @@ public class Attack : MonoBehaviour
         state = transform.parent.parent.parent.gameObject.GetComponent<State>();
         attr = transform.parent.parent.parent.parent.parent.GetComponent<Attributes>();
         player = transform.parent.parent.parent.parent.parent.gameObject;
-        maxAttackPhase = attr.attrGet(4)/1;
-        currentDamage = new damage(damageType.physical, baseDamage*(1+attr.attrGet(4)/50));
+        maxAttackPhase = attr.attrGet(4)/10;
+        baseDamage.type = damageType.physical;
+        baseDamage.pDamage = weaponDamage * (1 + attr.attrGet(4) / 50);
+        currentDamage = baseDamage;
     }
 	
 	// Update is called once per frame
@@ -131,9 +134,68 @@ public class Attack : MonoBehaviour
         isTargetHit = false;
     }
 
-    public void SetCurrentDamage(damageType dt)
+    public void SetWholeCurrentDamage(damage d)
     {
-        currentDamageType = dt;
+        currentDamage = d;
+    }
+
+    public void SetWholeCurrentDamage(damageType dt, int pd, int cd = 0)
+    {
+        currentDamage.type = dt;
+        currentDamage.pDamage = pd;
+        currentDamage.cDamage = cd;
+    }
+
+    public void SetCurrentDamage(int d, int a)
+    {
+        if (d != 0 && d != 1)
+            return;
+        if ((d == 1) && currentDamage.type == damageType.physical)
+            currentDamage.type = damageType.blended;
+        if(d == 0)
+            currentDamage.pDamage = a;
+        else
+            currentDamage.cDamage = a;
+    }
+
+    public void AddCurrentDamage(int d, int a)
+    {
+        if (d != 0 && d != 1)
+            return;
+        if ((d == 1) && currentDamage.type == damageType.physical)
+            currentDamage.type = damageType.blended;
+        if (d == 0)
+            currentDamage.pDamage += a;
+        else
+            currentDamage.cDamage += a;
+    }
+
+    public void AddAttackPhaseBonus(int phase)
+    {
+        int bonusDamage = (int)(currentDamage.pDamage * (1 + phase / 10.0f));
+        SetCurrentDamage(0, bonusDamage);
+    }
+
+    public void ResetDamage(int d = 0)
+    {
+        if (d != 0 && d != 1)
+            return;
+        if (currentDamage.type == damageType.blended)
+        {
+            if(d == 0)
+                currentDamage.type = damageType.chi;
+            else
+                currentDamage.type = damageType.physical;
+        }
+        if (d == 0)
+            currentDamage.pDamage = weaponDamage * (1 + attr.attrGet(4) / 50);
+        else
+            currentDamage.cDamage = 0;
+    }
+
+    public void ResetWholeDamage()
+    {
+        currentDamage = baseDamage;
     }
 
     public List<GameObject> GetHitTargets()

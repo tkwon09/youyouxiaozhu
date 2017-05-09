@@ -13,17 +13,21 @@ public class State : MonoBehaviour {
     public Attributes attr;
     public MovementScript move;
     public CombatControl cc;
-    int maxAttackPhase;
+    public int maxAttackPhase;
+    public GameObject fcChi;
+    public Transform rotationtransform;
 
     bool inCombo;
     int counter = 0;
 
     public GameObject tuchi;
+    UIText uitext;
 
     // Use this for initialization
     void Start ()
     {
         StartCoroutine(Initialize());
+        uitext = GetComponent<UIText>();
     }
 
     IEnumerator Initialize()
@@ -53,8 +57,6 @@ public class State : MonoBehaviour {
     void isAttacking()
     {
         attack.isAttack = true;
-        attackPhase++;
-        StartCoroutine(ComboLast());
     }
     void endAttacking()
     {
@@ -63,6 +65,10 @@ public class State : MonoBehaviour {
     void isAnimating()
     {
         attack.isAnimating = true;
+        attackPhase++;
+        uitext.UpdateUIText();
+        attack.AddAttackPhaseBonus(attackPhase);
+        StartCoroutine(ComboLast());
     }
     void endAnimating()
     {
@@ -76,21 +82,13 @@ public class State : MonoBehaviour {
     {
         move.blocking = false;
     }
-    void isTuing()
-    {
-        attack.SetCurrentDamage(Attack.damageType.chi);
-    }
-    void isBlending()
-    {
-        attack.SetCurrentDamage(Attack.damageType.blended);
-    }
     void runAttack()
     {
         runAttacked = true;
     }
-    void Tuchi()
+    void CreateFrontCast()
     {
-        Instantiate(tuchi, transform.position, Quaternion.identity);
+        Destroy(Instantiate(fcChi, transform.position + 2f * (rotationtransform.forward) + 2f * Vector3.up, rotationtransform.rotation), 1);
     }
     IEnumerator ComboLast()
     {
@@ -101,7 +99,10 @@ public class State : MonoBehaviour {
         {
             inCombo = false;
             attackPhase = 0;
+            attack.ResetDamage();
+            uitext.UpdateUIText();
         }
         counter--;
     }
+
 }
