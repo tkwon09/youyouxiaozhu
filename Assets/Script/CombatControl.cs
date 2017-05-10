@@ -65,7 +65,7 @@ public class CombatControl : MonoBehaviour {
 
         if(Input.GetKeyDown(KeyCode.Alpha1))
         {
-            if (!attr.chiOn)
+            if (!attr.chiOn || !attr.UseChiSpell(0))
                 return;
             animator.SetTrigger("frontcast");
         }

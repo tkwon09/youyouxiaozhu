@@ -27,20 +27,28 @@ public class Attributes : MonoBehaviour
     public Attack attack;
     public DataManager dataManager;
     public Animator animator;
+    public Transform rotationtransform;
     public Image healthBar;
     public Image chiBar;
     public Image staminaBar;
     public GameObject swordChi;
+    public GameObject fcChi;
     public GameObject healthPop;
     public GameObject chiPop;
     public bool chiOn;
 
     InnerKF.plus IKFplus;
 
+    public enum Element { gold, wood, water, fire, earth};
+    public int[] elementMaster = new int[5];
+    public Element currentElement;
+    float currentElementMastery;
+
     // Use this for initialization
     void Start()
     {
         buffs = transform.Find("Buffs");
+        currentElementMastery = elementMaster[(int)currentElementMastery];
         //StartCoroutine(DebugAttr());
     }
 
@@ -180,17 +188,15 @@ public class Attributes : MonoBehaviour
         int chiDamage = 0;
         if (d.type == Attack.damageType.chi || d.type == Attack.damageType.blended)
         {
-            chiDamage = d.cDamage - (int)(0.4f * IP);
+            chiDamage = d.cDamage - (int)(0.3f * IP);
             totalPD = d.pDamage +  chiDamage;
         }
         else
             totalPD = d.pDamage;
         if (totalPD > 0)
             animator.SetTrigger("gethurt");
-        //Debug.Log(totalPD);
         Decrease(0, totalPD);
         GameObject hpop = Instantiate(healthPop, healthBar.transform) as GameObject;
-        //hpop.transform.position = new Vector3(0.125f, 0, 0);
         hpop.GetComponent<Text>().text = "-" + totalPD.ToString();
         Destroy(hpop, 1.25f);
         if (chiDamage != 0)
@@ -212,13 +218,17 @@ public class Attributes : MonoBehaviour
         if (chi >= 5)
         {
             chiOn = true;
-            swordChi.SetActive(true);
             attack.AddCurrentDamage(1,(int)(IP * 0.5f));
             StartCoroutine(ChiDec());
             return true;
         }
         else
             return false;
+    }
+
+    public void TurnChiOn()
+    {
+        swordChi.SetActive(true);
     }
 
     public void EndChi()
@@ -239,6 +249,31 @@ public class Attributes : MonoBehaviour
                 attack.ResetWholeDamage();
             }
         }
+    }
+
+    public bool UseChiSpell(int index)
+    {
+        switch(index)
+        {
+            case 0:
+                if (chi < 20)
+                    return false;
+                else
+                {
+                    Decrease(1, 20);
+                    return true;
+                }
+            default:
+                return false;
+        }
+    }
+
+    public void CreateFrontCastChi()
+    {
+        GameObject tempChi = Instantiate(fcChi, transform.position + 2.5f * (rotationtransform.forward) + 1.5f * Vector3.up, rotationtransform.rotation);
+        tempChi.AddComponent<Chi>();
+        tempChi.GetComponent<Chi>().SetChi(currentElement,(int)(currentElementMastery / 100.0f * IP));
+        Destroy(tempChi, 1);
     }
 
     bool Decrease(int index, int amount = 1)

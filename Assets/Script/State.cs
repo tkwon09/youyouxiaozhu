@@ -14,13 +14,11 @@ public class State : MonoBehaviour {
     public MovementScript move;
     public CombatControl cc;
     public int maxAttackPhase;
-    public GameObject fcChi;
     public Transform rotationtransform;
+    public GameObject swordChi;
 
     bool inCombo;
     int counter = 0;
-
-    public GameObject tuchi;
     UIText uitext;
 
     // Use this for initialization
@@ -88,8 +86,13 @@ public class State : MonoBehaviour {
     }
     void CreateFrontCast()
     {
-        Destroy(Instantiate(fcChi, transform.position + 2f * (rotationtransform.forward) + 2f * Vector3.up, rotationtransform.rotation), 1);
+        attr.CreateFrontCastChi();
     }
+    void CreateChi()
+    {
+        attr.TurnChiOn();
+    }
+
     IEnumerator ComboLast()
     {
         counter++;
