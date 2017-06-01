@@ -8,12 +8,10 @@ public class CombatControl : MonoBehaviour {
     public Attack attack;
     public Attributes attr;
     public State state;
-    
 
 	// Use this for initialization
 	void Start ()
     {
-        StartCoroutine(Initialize());
         
     }
 	

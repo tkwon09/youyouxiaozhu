@@ -8,7 +8,6 @@ public class Attack : MonoBehaviour
 
     bool isFriendly;
     public bool isAttack;
-    public bool isTargetHit;
     public bool isAnimating;
     public bool getBlocked;
 
@@ -16,8 +15,7 @@ public class Attack : MonoBehaviour
     public List<GameObject> hitTargets = new List<GameObject>();
     public int maxAttackPhase;
 
-    Animator animator;
-    State state;
+    Animator anim;
     Attributes attr;
     GameObject player;
     public int weaponDamage;
@@ -82,8 +80,7 @@ public class Attack : MonoBehaviour
             attackTarget = "Enemy";
         else
             attackTarget = "Player";
-        animator = transform.parent.parent.parent.gameObject.GetComponent<Animator>();
-        state = transform.parent.parent.parent.gameObject.GetComponent<State>();
+        anim = transform.parent.parent.parent.GetComponent<Animator>();
         attr = transform.parent.parent.parent.parent.parent.GetComponent<Attributes>();
         player = transform.parent.parent.parent.parent.parent.gameObject;
         maxAttackPhase = attr.attrGet(4)/10;
@@ -105,13 +102,17 @@ public class Attack : MonoBehaviour
 
     void OnTriggerEnter(Collider hit)
     {
-        if (!isAttack || getBlocked || !hit.gameObject.CompareTag(attackTarget))
+        if (!isAttack || !hit.gameObject.CompareTag(attackTarget))
             return;
         Attributes a = hit.gameObject.GetComponent<Attributes>();
         if (a)
         {
-            isTargetHit = true;
             hitTargets.Add(hit.gameObject);
+            if(a.isBlocking)
+            {
+                anim.SetTrigger("blocked");
+                return;
+            }
             a.TakeDamage(currentDamage);
             if (wbuffs.Count != 0)
             {
@@ -131,7 +132,11 @@ public class Attack : MonoBehaviour
                 }
             }
         }
-        isTargetHit = false;
+    }
+    void OnTriggerExit(Collider other)
+    {
+        if (hitTargets.Contains(other.gameObject))
+            hitTargets.Remove(other.gameObject);
     }
 
     public void SetWholeCurrentDamage(damage d)

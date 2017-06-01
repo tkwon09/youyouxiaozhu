@@ -33,7 +33,6 @@ public class MovementScript : MonoBehaviour
     public bool running;
     bool climbing;
     bool backup;
-    public bool blocking;
 
     private Vector3 surfaceNormal;
     Vector3 climbNormal;

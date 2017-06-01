@@ -36,6 +36,7 @@ public class Attributes : MonoBehaviour
     public GameObject healthPop;
     public GameObject chiPop;
     public bool chiOn;
+    public bool isBlocking;
 
     InnerKF.plus IKFplus;
 
@@ -55,7 +56,7 @@ public class Attributes : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
     IEnumerator DebugAttr()
     {

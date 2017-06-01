@@ -62,6 +62,7 @@ public class State : MonoBehaviour {
     }
     void isAnimating()
     {
+        Debug.Log(1);
         attack.isAnimating = true;
         attackPhase++;
         uitext.UpdateUIText();
@@ -74,11 +75,11 @@ public class State : MonoBehaviour {
     }
     void isBlocking()
     {
-        move.blocking = true;
+        attr.isBlocking = true;
     }
     void endBlocking()
     {
-        move.blocking = false;
+        attr.isBlocking = false;
     }
     void runAttack()
     {
