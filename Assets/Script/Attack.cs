@@ -92,7 +92,7 @@ public class Attack : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-
+        //Debug.Log(hitTargets.Count);
     }
 
     public void AddWbuff(buff weaponBuff)
@@ -102,41 +102,72 @@ public class Attack : MonoBehaviour
 
     void OnTriggerEnter(Collider hit)
     {
-        if (!isAttack || !hit.gameObject.CompareTag(attackTarget))
+        if (!hit.gameObject.CompareTag(attackTarget))
             return;
-        Attributes a = hit.gameObject.GetComponent<Attributes>();
-        if (a)
+
+        hitTargets.Add(hit.gameObject);
+
+        if (!isAttack)
+            return;
+
+        EnemyAttributes a = hit.gameObject.GetComponent<EnemyAttributes>();
+
+        a.TakeDamage(currentDamage);
+        if (wbuffs.Count != 0)
         {
-            hitTargets.Add(hit.gameObject);
-            if(a.isBlocking)
+            foreach (wbuff item in wbuffs)
             {
-                anim.SetTrigger("blocked");
-                return;
+                if (Random.value <= item.probability)
+                    buffs.Add(item.buffToAdd);
             }
+        }
+
+        if (buffs.Count != 0)
+        {
+            for (int i = buffs.Count - 1; i >= 0; i--)
+            {
+                a.AddBuff(buffs[i]);
+                buffs.RemoveAt(i);
+            }
+        }
+
+    }
+    void OnTriggerExit(Collider other)
+    {
+        if (hitTargets.Contains(other.gameObject))
+            hitTargets.Remove(other.gameObject);
+    }
+
+    public void HurtHitTargets()
+    {
+        foreach(GameObject t in hitTargets)
+        {
+            EnemyAttributes a = t.GetComponent<EnemyAttributes>();
+
+            //if (a.isBlocking)
+            //{
+            //    anim.SetTrigger("blocked");
+            //    return;
+            //}
             a.TakeDamage(currentDamage);
             if (wbuffs.Count != 0)
             {
                 foreach (wbuff item in wbuffs)
                 {
-                    if(Random.value <= item.probability)
+                    if (Random.value <= item.probability)
                         buffs.Add(item.buffToAdd);
                 }
             }
 
             if (buffs.Count != 0)
             {
-                for(int i = buffs.Count-1;i>=0;i--)
+                for (int i = buffs.Count - 1; i >= 0; i--)
                 {
                     a.AddBuff(buffs[i]);
                     buffs.RemoveAt(i);
                 }
             }
         }
-    }
-    void OnTriggerExit(Collider other)
-    {
-        if (hitTargets.Contains(other.gameObject))
-            hitTargets.Remove(other.gameObject);
     }
 
     public void SetWholeCurrentDamage(damage d)

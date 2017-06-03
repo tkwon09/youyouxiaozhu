@@ -132,7 +132,7 @@ public class Attributes : MonoBehaviour
 
     public int attrGet(int index)
     {
-        if (index < 0 || index > 6)
+        if (index < 0 || index > 9)
             return -1;
         switch (index)
         {
@@ -196,6 +196,8 @@ public class Attributes : MonoBehaviour
             totalPD = d.pDamage;
         if (totalPD > 0)
             animator.SetTrigger("gethurt");
+        if (totalPD > 10)
+            totalPD = (int)(totalPD * (1 + Random.value * 0.08f + -0.04f));
         Decrease(0, totalPD);
         GameObject hpop = Instantiate(healthPop, healthBar.transform) as GameObject;
         hpop.GetComponent<Text>().text = "-" + totalPD.ToString();
@@ -356,19 +358,4 @@ public class Attributes : MonoBehaviour
         return attack;
     }
 
-    public void PlayBlockAnim(int blocktype)
-    {
-        switch(blocktype)
-        {
-            case 0:
-                animator.SetTrigger("UpBlock");
-                break;
-            case 1:
-                animator.SetTrigger("MiddleBlock");
-                break;
-            case 2:
-                animator.SetTrigger("JumpEvade");
-                break;
-        }
-    }
 }

@@ -55,6 +55,7 @@ public class State : MonoBehaviour {
     void isAttacking()
     {
         attack.isAttack = true;
+        attack.HurtHitTargets();
     }
     void endAttacking()
     {
@@ -62,7 +63,6 @@ public class State : MonoBehaviour {
     }
     void isAnimating()
     {
-        Debug.Log(1);
         attack.isAnimating = true;
         attackPhase++;
         uitext.UpdateUIText();

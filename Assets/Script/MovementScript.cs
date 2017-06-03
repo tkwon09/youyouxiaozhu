@@ -31,7 +31,6 @@ public class MovementScript : MonoBehaviour
     private bool jumped;
     private bool onGround;
     public bool running;
-    bool climbing;
     bool backup;
 
     private Vector3 surfaceNormal;
@@ -77,10 +76,7 @@ public class MovementScript : MonoBehaviour
             }
             if (Input.GetKey(KeyCode.A))
             {
-                if (climbing)
-                    newMoveDirection += Quaternion.AngleAxis(-90, rotatedTransform.up) * playerForward;
-                else
-                    newMoveDirection += Quaternion.AngleAxis(-90, surfaceNormal) * camforwardMove;
+                newMoveDirection += Quaternion.AngleAxis(-90, surfaceNormal) * camforwardMove;
             }
             if (Input.GetKey(KeyCode.S))
             {
@@ -89,10 +85,7 @@ public class MovementScript : MonoBehaviour
             }
             if (Input.GetKey(KeyCode.D))
             {
-                if (climbing)
-                    newMoveDirection += Quaternion.AngleAxis(90, rotatedTransform.up) * playerForward;
-                else
-                    newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * camforwardMove;
+                newMoveDirection += Quaternion.AngleAxis(90, surfaceNormal) * camforwardMove;
             }
 
             if (Input.GetKey(KeyCode.LeftShift) && !backup)
@@ -108,48 +101,34 @@ public class MovementScript : MonoBehaviour
             if (moveDirection == Vector3.zero)
             {
                 running = false;
-                if (climbing)
-                {
-                    climbing = false;
-                    rotatedTransform.rotation = Quaternion.Euler(0, rotatedTransform.rotation.eulerAngles.y, rotatedTransform.rotation.eulerAngles.z);
-                }
                 animator.SetBool("running", false);
             }
             else
             {
-                if (climbing)
+                if (Input.GetKey(KeyCode.S))
                 {
-                    //Vector3.Angle(climb,moveForward,
-                    Quaternion q = Quaternion.LookRotation(moveForward, Vector3.up);
-                    rotatedTransform.rotation = Quaternion.Euler(climbAngle, q.eulerAngles.y, q.eulerAngles.z);
-                    //newMoveDirection += climbSpeed * rotatedTransform.forward;
+                    if (!backup)
+                    {
+                        backup = true;
+                        currentMaxMoveSpeed = maxBackSpeed;
+                    }
+                    rotatedTransform.rotation = Quaternion.LookRotation(-moveForward, Vector3.up);
                 }
                 else
                 {
-                    if (Input.GetKey(KeyCode.S))
+                    if (backup)
                     {
-                        if (!backup)
-                        {
-                            backup = true;
-                            currentMaxMoveSpeed = maxBackSpeed;
-                        }
                         rotatedTransform.rotation = Quaternion.LookRotation(-moveForward, Vector3.up);
+                        moveDirection = Vector3.zero;
+                        backup = false;
+                        currentMaxMoveSpeed = maxMovementSpeed;
                     }
                     else
-                    {
-                        if (backup)
-                        {
-                            rotatedTransform.rotation = Quaternion.LookRotation(-moveForward, Vector3.up);
-                            moveDirection = Vector3.zero;
-                            backup = false;
-                            currentMaxMoveSpeed = maxMovementSpeed;
-                        }
-                        else
-                            rotatedTransform.rotation = Quaternion.LookRotation(moveForward, Vector3.up);
-                    }
-                    // Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(playerForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
-                    //Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
+                        rotatedTransform.rotation = Quaternion.LookRotation(moveForward, Vector3.up);
                 }
+                // Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(playerForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
+                //Quaternion.Lerp(rotatedTransform.rotation, Quaternion.LookRotation(cameraForward, Vector3.up), currentRotationSpeed * Time.deltaTime);
+                
             }
             if (Input.GetKeyUp(KeyCode.LeftShift))
             {
@@ -159,11 +138,6 @@ public class MovementScript : MonoBehaviour
                     currentMaxMoveSpeed = maxMovementSpeed;                
                 currentRotationSpeed = rotationSpeed;
                 running = false;
-                if (climbing)
-                {
-                    climbing = false;
-                    rotatedTransform.rotation = Quaternion.Euler(0, rotatedTransform.rotation.eulerAngles.y, rotatedTransform.rotation.eulerAngles.z);
-                }
                 animator.SetBool("running", false);
             }
             if (onGround)
@@ -254,32 +228,10 @@ public class MovementScript : MonoBehaviour
         }
 
         //agent.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
-        if (climbing)
-        {
-            Vector3 normSpeed = Vector3.ProjectOnPlane(moveVelocity, -climbNormal);
-            Vector3 tangentialSpeed = moveVelocity - normSpeed;
-            Debug.DrawRay(transform.position, normSpeed, Color.yellow);
-            Debug.DrawRay(transform.position, tangentialSpeed, Color.green);
-            controller.Move((normSpeed + tangentialSpeed + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
-        }
-        else
-            controller.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
+        controller.Move((moveVelocity + new Vector3(0, verticalSpeed, 0)) * Time.fixedDeltaTime);
     }
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        #region Climb
-        climbNormal = hit.normal;
-        if (!running)
-            return;
-        WallScript wscript = hit.gameObject.GetComponent<WallScript>();
-        if (wscript && wscript.camDirection == WallScript.CameraDirection.Horizontal)
-        {
-            //newMoveDirection += climbSpeed*rotatedTransform.forward;
-            verticalSpeed = climbSpeed;
-            climbing = true;
-            climbAngle = -Vector3.Angle(transform.up, climbNormal);
-        }
-        #endregion
 
     }
     public Vector3 GetMoveVelocity()

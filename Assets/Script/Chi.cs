@@ -34,7 +34,7 @@ public class Chi : MonoBehaviour
     {
         if (!hit.gameObject.CompareTag(attackTarget))
             return;
-        Attributes a = hit.gameObject.GetComponent<Attributes>();
+        EnemyAttributes a = hit.gameObject.GetComponent<EnemyAttributes>();
         if (a)
         {
             Attack.damage currentDamage = new Attack.damage(Attack.damageType.chi,0,damage);
