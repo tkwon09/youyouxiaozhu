@@ -37,7 +37,7 @@ public class Chi : MonoBehaviour
         EnemyAttributes a = hit.gameObject.GetComponent<EnemyAttributes>();
         if (a)
         {
-            Attack.damage currentDamage = new Attack.damage(Attack.damageType.chi,0,damage);
+            damage currentDamage = new damage(damageType.chi,0,damage);
             a.TakeDamage(currentDamage);
         }
     }

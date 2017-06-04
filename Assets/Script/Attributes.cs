@@ -160,7 +160,7 @@ public class Attributes : MonoBehaviour
         return -1;
     }
 
-    public void AddBuff(Attack.buff buff)
+    public void AddBuff(buff buff)
     {
         GameObject temp = new GameObject(buff.buffName);
         temp.transform.parent = buffs;
@@ -183,11 +183,11 @@ public class Attributes : MonoBehaviour
             inter.setTime(time);
     }
 
-    public void TakeDamage(Attack.damage d)
+    public void TakeDamage(damage d)
     {
         int totalPD = 0;
         int chiDamage = 0;
-        if (d.type == Attack.damageType.chi || d.type == Attack.damageType.blended)
+        if (d.type == damageType.chi || d.type == damageType.blended)
         {
             chiDamage = d.cDamage - (int)(0.3f * IP);
             totalPD = d.pDamage +  chiDamage;
@@ -198,6 +198,7 @@ public class Attributes : MonoBehaviour
             animator.SetTrigger("gethurt");
         if (totalPD > 10)
             totalPD = (int)(totalPD * (1 + Random.value * 0.08f + -0.04f));
+        Debug.Log(totalPD);
         Decrease(0, totalPD);
         GameObject hpop = Instantiate(healthPop, healthBar.transform) as GameObject;
         hpop.GetComponent<Text>().text = "-" + totalPD.ToString();

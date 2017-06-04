@@ -46,7 +46,7 @@ public class CombatControl : MonoBehaviour {
 
         if (Input.GetMouseButtonDown(1))
         {
-            animator.SetTrigger("guard");
+            animator.SetTrigger("parry");
         }
 
         if (Input.GetKeyDown(KeyCode.F))

@@ -27,6 +27,7 @@ public class EnemyAttributes : MonoBehaviour {
     public DataManager dataManager;
     public GameObject healthPop;
     public GameObject chiPop;
+    public bool isBlocking;
 
     // Use this for initialization
     void Start()
@@ -73,7 +74,7 @@ public class EnemyAttributes : MonoBehaviour {
         return -1;
     }
 
-    public void AddBuff(Attack.buff buff)
+    public void AddBuff(buff buff)
     {
         GameObject temp = new GameObject(buff.buffName);
         temp.transform.parent = buffs;
@@ -96,11 +97,11 @@ public class EnemyAttributes : MonoBehaviour {
             inter.setTime(time);
     }
 
-    public void TakeDamage(Attack.damage d)
+    public void TakeDamage(damage d)
     {
         int totalPD = 0;
         int chiDamage = 0;
-        if (d.type == Attack.damageType.chi || d.type == Attack.damageType.blended)
+        if (d.type == damageType.chi || d.type == damageType.blended)
         {
             chiDamage = d.cDamage - (int)(0.3f * IP);
             totalPD = d.pDamage + chiDamage;

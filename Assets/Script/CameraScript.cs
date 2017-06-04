@@ -6,7 +6,6 @@ public class CameraScript : MonoBehaviour
 {
     public Transform follow;
     public MovementScript movement;
-    public Camera camera;
     
     public float distance = 5.0f;
     public float zoomSpeed;
@@ -126,7 +125,7 @@ public class CameraScript : MonoBehaviour
         if (movement.running)
         {
             //Vector3 velocityRelativeToCamera = Vector3.Project(movement.GetMoveVelocity(), vectorToPosition);
-            if (camera.transform.up != movement.GetSurfaceNormal())
+            if (Camera.main.transform.up != movement.GetSurfaceNormal())
             {
                 float sign = (Vector3.Dot(vectorToPosition, movement.GetSurfaceNormal()) > 0) ? 1 : -1;
                 y += sign * cameraAvoidSpeed * Time.deltaTime;

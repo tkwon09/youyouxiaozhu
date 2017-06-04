@@ -47,10 +47,6 @@ public class State : MonoBehaviour {
     {
         idle = true;
         walking = false;
-        anim.ResetTrigger("attack1");
-        anim.ResetTrigger("attack2");
-        anim.ResetTrigger("attack3");
-        anim.ResetTrigger("guard");
     }
     void isAttacking()
     {

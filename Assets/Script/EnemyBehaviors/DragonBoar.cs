@@ -1,27 +1,27 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DragonBoar : MonoBehaviour,EnemyBehaviors
+public class DragonBoar : MonoBehaviour, EnemyBehaviors
 {
-	Animator anim;
-	int scream;
-	int basicAttack;
-	int getHit;
-	int walk;
-	int die;
-	int run;
+    Animator anim;
+    int scream;
+    int basicAttack;
+    int getHit;
+    int walk;
+    int die;
+    int run;
 
 
-	void Awake () 
-	{
-		anim = GetComponent<Animator>();
-		scream = Animator.StringToHash("Scream");
-		basicAttack = Animator.StringToHash("Basic Attack");
-		getHit = Animator.StringToHash("Get Hit");
-		walk = Animator.StringToHash("Walk");
-		die = Animator.StringToHash("Die");
-		run = Animator.StringToHash ("Run");
-	}
+    void Awake()
+    {
+        anim = GetComponent<Animator>();
+        scream = Animator.StringToHash("Scream");
+        basicAttack = Animator.StringToHash("Basic Attack");
+        getHit = Animator.StringToHash("Get Hit");
+        walk = Animator.StringToHash("Walk");
+        die = Animator.StringToHash("Die");
+        run = Animator.StringToHash("Run");
+    }
 
     void EnemyBehaviors.Attack()
     {
@@ -34,6 +34,10 @@ public class DragonBoar : MonoBehaviour,EnemyBehaviors
     void EnemyBehaviors.Die()
     {
         DieAnim();
+    }
+    void EnemyBehaviors.Parry()
+    {
+        return;
     }
 
     public void Scream ()

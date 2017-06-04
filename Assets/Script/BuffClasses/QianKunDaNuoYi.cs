@@ -23,8 +23,8 @@ public class QianKunDaNuoYi : Buff, setbuffparam
 
     public override void StartFunction()
     {
-        Attack.buff QStun = new Attack.buff("Stun", true, 2.5f);
-        Attack.wbuff QWBuff = new Attack.wbuff(QStun,stunRate);
+        buff QStun = new buff("Stun", true, 2.5f);
+        wbuff QWBuff = new wbuff(QStun,stunRate);
         attack.wbuffs.Add(QWBuff);
     }
 
