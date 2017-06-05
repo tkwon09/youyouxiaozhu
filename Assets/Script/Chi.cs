@@ -5,7 +5,7 @@ using UnityEngine;
 public class Chi : MonoBehaviour
 {
     bool isFriendly;
-    Attributes.Element element;
+    Element element;
     int damage;
     string attackTarget;
 
@@ -23,7 +23,7 @@ public class Chi : MonoBehaviour
 		
 	}
 
-    public void SetChi(Attributes.Element ele, int d, bool isfriendly = true)
+    public void SetChi(Element ele, int d, bool isfriendly = true)
     {
         element = ele;
         damage = d;

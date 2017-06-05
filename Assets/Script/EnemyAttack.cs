@@ -9,7 +9,6 @@ public class EnemyAttack : MonoBehaviour {
     bool withinRange;
 
     string attackTarget;
-    public int maxAttackPhase;
 
     Animator anim;
     EnemyAttributes attr;
@@ -27,15 +26,15 @@ public class EnemyAttack : MonoBehaviour {
         attackTarget = "Player";
         attr = transform.parent.GetComponent<EnemyAttributes>();
         player = GameObject.FindGameObjectWithTag("Player");
-        maxAttackPhase = attr.attrGet(4) / 10;
         baseDamage.type = damageType.physical;
-        baseDamage.pDamage = damagePower * (1 + attr.attrGet(4) / 50);
+        baseDamage.pDamage = damagePower;
         currentDamage = baseDamage;
     }
 
     // Update is called once per frame
     void Update()
     {
+
     }
 
     public void AddWbuff(buff weaponBuff)

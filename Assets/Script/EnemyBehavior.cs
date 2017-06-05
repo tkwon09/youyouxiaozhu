@@ -2,24 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Random = UnityEngine.Random;
 
-public interface EnemyBehaviors
-{
-    void GetHurt();
-    void Attack();
-    void Die();
-    void Parry();
-}
-
-// Should have Animator parameters uniform with a blend tree of walk and run
+// Should have Walk and run Blend tree
+// Step1: Copy read-only animation and complete animator
+// Step2: Create attack boxes, attach EnemyAttack and tick "isTrigger"
+// Step3: Add a moving collider and attach scripts(EnemyAttributes, EnemyBehavior, EnemyState)
+// Step4: Add animation events
+// Step5: Create corresponding class, implement interface and attach this class component
+// Step6: Add GUI, Buffs and set "Enemy" tag
 public class EnemyBehavior : MonoBehaviour {
 
-    public enum EnemyType { idle, attack, guard};
     public EnemyType type;
     public bool functioning;
     public float attackCooldown;
     public float attackRange = 1f;
     public float speed;
+    public float specialProb;
+    public int specialCost;
 
     float currspeed = 0;
     float acc;
@@ -32,21 +32,29 @@ public class EnemyBehavior : MonoBehaviour {
     bool isAttacking;
 
     Animator anim;
+    EnemyAttributes attr;
     int animSpeed;
     int animAttack;
 
     public EnemyBehaviors behavior;
 
-	// Use this for initialization
-	void Awake ()
+    public bool isstun; // can't do anything
+    public int stuncount;
+    public bool issealed; // can't perform chi moves
+    public int sealedcount;
+    public bool istwined; // can't move or preform basic moves
+    public int twinedcount;
+
+    // Use this for initialization
+    void Awake ()
     {
         etype = GetComponent<EnemyAttributes>().enemyType;
+        attr = GetComponent<EnemyAttributes>();
         behavior = (EnemyBehaviors)GetComponent(Type.GetType(etype));
         player = GameObject.FindGameObjectWithTag("Player");
         animSpeed = Animator.StringToHash("Speed");
-        animAttack = Animator.StringToHash("Attack");
         anim = GetComponent<Animator>();
-        acc = speed / 4;
+        acc = speed / 3;
         StartCoroutine(Behave());
 	}
 	
@@ -58,9 +66,13 @@ public class EnemyBehavior : MonoBehaviour {
 
     private void FixedUpdate()
     {
+        if (isstun)
+            return;
+
         if(offencing)
         {
             Vector3 dest = (player.transform.position - transform.position);
+            dest.Scale(new Vector3(1, 0, 1));
             transform.rotation = Quaternion.LookRotation(dest);
             if (dest.magnitude > attackRange)
             {
@@ -75,9 +87,57 @@ public class EnemyBehavior : MonoBehaviour {
                 if (attackReady)
                 {
                     StartCoroutine(AttackCoolDown());
-                    anim.SetTrigger(animAttack);
+                    if (Random.value < specialProb && attr.Decrease(1, specialCost))
+                        behavior.Special();
+                    else
+                        behavior.Attack();
                 }
             }
+        }
+    }
+
+    public void SetDisable(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                isstun = true;
+                stuncount++;
+                break;
+            case 1:
+                issealed = true;
+                sealedcount++;
+                break;
+            case 2:
+                istwined = true;
+                twinedcount++;
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void ResetDisable(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                stuncount--;
+                if (stuncount == 0)
+                    isstun = false;
+                break;
+            case 1:
+                sealedcount--;
+                if (sealedcount == 0)
+                    issealed = false;
+                break;
+            case 2:
+                twinedcount--;
+                if (twinedcount == 0)
+                    istwined = false;
+                break;
+            default:
+                break;
         }
     }
 
@@ -101,10 +161,13 @@ public class EnemyBehavior : MonoBehaviour {
         }
     }
 
-    IEnumerator AttackCoolDown()
+    IEnumerator AttackCoolDown(int t = 0)
     {
         attackReady = false;
-        yield return new WaitForSeconds(attackCooldown);
+        if(t == 0)
+            yield return new WaitForSeconds(attackCooldown);
+        else
+            yield return new WaitForSeconds(t);
         attackReady = true;
     }
 

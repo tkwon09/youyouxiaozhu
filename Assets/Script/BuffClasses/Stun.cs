@@ -5,20 +5,33 @@ using UnityEngine;
 
 public class Stun : Buff, setbuffparam {
 
+    Transform target;
+
     public Stun() : base(buffType.Impair, true)
     {
 
     }
 
-    public override void UpdateFunction()
+    protected override void UpdateFunction()
     {
-        //transform.parent.parent.gameObject.GetComponent<MovementScript>().canMove = false;
         return;
     }
 
-    public override void StartFunction()
+    protected override void StartFunction()
     {
-        
+        target = transform.root;
+        if (target.CompareTag("Player"))
+            target.GetComponent<CombatControl>().SetDisable(0);
+        else
+            target.GetComponent<EnemyBehavior>().SetDisable(0);
+    }
+
+    protected override void EndFunction()
+    {
+        if (target.CompareTag("Player"))
+            target.GetComponent<CombatControl>().ResetDisable(0);
+        else
+            target.GetComponent<EnemyBehavior>().ResetDisable(0);
     }
 
     void setbuffparam.setTime(float durtime)
@@ -33,14 +46,10 @@ public class Stun : Buff, setbuffparam {
     //}
 
     // Update is called once per frame
-    public override void Update ()
-    {
-        base.Update();
-        UpdateFunction();
-	}
+ //   protected override void Update ()
+ //   {
+ //       base.Update();
+ //       UpdateFunction();
+	//}
 
-    private void OnDestroy()
-    {
-        //transform.parent.parent.gameObject.GetComponent<MovementScript>().canMove = true;
-    }
 }

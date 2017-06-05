@@ -11,8 +11,8 @@ public class EnemyState : MonoBehaviour {
 
     private void Start()
     {
-        attack = transform.Find("AttackBox").GetComponent<EnemyAttack>();
         attr = GetComponent<EnemyAttributes>();
+        attack = attr.GetAttack();
     }
 
     void becomeBusy()

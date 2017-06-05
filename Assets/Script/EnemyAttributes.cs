@@ -9,13 +9,10 @@ public class EnemyAttributes : MonoBehaviour {
 
     public int maxHealth;
     public int maxChi;
-    public int maxStamina;
     public int IP;
-    public int KP;
 
     int health;
     int chi;
-    int stamina;
 
     Transform buffs;
     Image healthBar;
@@ -38,7 +35,6 @@ public class EnemyAttributes : MonoBehaviour {
         behavior = GetComponent<EnemyBehavior>().behavior;
         health = maxHealth;
         chi = maxChi;
-        stamina = maxStamina;
         UpdateUI();
     }
 
@@ -59,17 +55,11 @@ public class EnemyAttributes : MonoBehaviour {
             case 1:
                 return maxChi;
             case 2:
-                return maxStamina;
-            case 3:
                 return IP;
-            case 4:
-                return KP;
-            case 5:
+            case 3:
                 return health;
-            case 6:
+            case 4:
                 return chi;
-            case 7:
-                return stamina;
         }
         return -1;
     }
@@ -130,24 +120,7 @@ public class EnemyAttributes : MonoBehaviour {
 
     }
 
-    public bool UseChiSpell(int index)
-    {
-        switch (index)
-        {
-            case 0:
-                if (chi < 20)
-                    return false;
-                else
-                {
-                    Decrease(1, 20);
-                    return true;
-                }
-            default:
-                return false;
-        }
-    }
-
-    bool Decrease(int index, int amount = 1)
+    public bool Decrease(int index, int amount = 1)
     {
         switch (index)
         {
@@ -168,27 +141,12 @@ public class EnemyAttributes : MonoBehaviour {
             case 1:
                 if (chi <= amount)
                 {
-                    chi = 0;
-                    UpdateUI(1);
                     return false;
                 }
                 else
                 {
                     chi -= amount;
                     UpdateUI(1);
-                    return true;
-                }
-            case 2:
-                if (stamina <= amount)
-                {
-                    stamina = 0;
-                    UpdateUI(2);
-                    return false;
-                }
-                else
-                {
-                    stamina -= amount;
-                    UpdateUI(2);
                     return true;
                 }
             default:
@@ -211,6 +169,11 @@ public class EnemyAttributes : MonoBehaviour {
                 chiBar.fillAmount = (float)chi / maxChi;
                 break;
         }
+    }
+
+    public EnemyAttack GetAttack()
+    {
+        return attack;
     }
 
     void OnTriggerEnter(Collider hit)

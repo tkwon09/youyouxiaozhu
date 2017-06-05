@@ -24,6 +24,7 @@ public class Attributes : MonoBehaviour
     int stamina;
 
     Transform buffs;
+    Transform damagePrompt;
     public Attack attack;
     public DataManager dataManager;
     public Animator animator;
@@ -40,7 +41,6 @@ public class Attributes : MonoBehaviour
 
     InnerKF.plus IKFplus;
 
-    public enum Element { gold, wood, water, fire, earth};
     public int[] elementMaster = new int[5];
     public Element currentElement;
     float currentElementMastery;
@@ -49,6 +49,7 @@ public class Attributes : MonoBehaviour
     void Start()
     {
         buffs = transform.Find("Buffs");
+        damagePrompt = transform.Find("DamagePrompt");
         currentElementMastery = elementMaster[(int)currentElementMastery];
         //StartCoroutine(DebugAttr());
     }
@@ -198,15 +199,14 @@ public class Attributes : MonoBehaviour
             animator.SetTrigger("gethurt");
         if (totalPD > 10)
             totalPD = (int)(totalPD * (1 + Random.value * 0.08f + -0.04f));
-        Debug.Log(totalPD);
         Decrease(0, totalPD);
-        GameObject hpop = Instantiate(healthPop, healthBar.transform) as GameObject;
+        GameObject hpop = Instantiate(healthPop, damagePrompt) as GameObject;
         hpop.GetComponent<Text>().text = "-" + totalPD.ToString();
         Destroy(hpop, 1.25f);
         if (chiDamage != 0)
         {
             Decrease(1, chiDamage);
-            GameObject cpop = Instantiate(chiPop,chiBar.transform) as GameObject;
+            GameObject cpop = Instantiate(chiPop, damagePrompt) as GameObject;
             cpop.GetComponent<Text>().text = "-" + chiDamage.ToString();
             Destroy(cpop, 1.25f);
         }
@@ -300,8 +300,6 @@ public class Attributes : MonoBehaviour
             case 1:
                 if (chi <= amount)
                 {
-                    chi = 0;
-                    UpdateUI(1);
                     return false;
                 }
                 else
@@ -313,8 +311,6 @@ public class Attributes : MonoBehaviour
             case 2:
                 if (stamina <= amount)
                 {
-                    stamina = 0;
-                    UpdateUI(2);
                     return false;
                 }
                 else

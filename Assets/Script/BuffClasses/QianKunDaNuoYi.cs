@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -16,16 +17,23 @@ public class QianKunDaNuoYi : Buff, setbuffparam
 
     }
 
-    public override void UpdateFunction()
+    protected override void UpdateFunction()
     {
-        
+
     }
 
-    public override void StartFunction()
+    protected override void StartFunction()
     {
-        buff QStun = new buff("Stun", true, 2.5f);
+        Player = GameObject.Find("Player");
+        attack = Player.GetComponent<Attributes>().GetAttack();
+        buff QStun = new buff("Stun", true, 8f);
         wbuff QWBuff = new wbuff(QStun,stunRate);
         attack.wbuffs.Add(QWBuff);
+    }
+
+    protected override void EndFunction()
+    {
+        
     }
 
     void setbuffparam.setTime(float durtime)
@@ -34,17 +42,14 @@ public class QianKunDaNuoYi : Buff, setbuffparam
     }
 
     // Use this for initialization
-    public override void Start()
-    {
-        base.Start();
-        Player = GameObject.Find("Player");
-        attack = Player.GetComponent<Attributes>().GetAttack();
-        StartFunction();
-    }
+    //protected override void Start()
+    //{
+
+    //}
 
     // Update is called once per frame
-    public override void Update ()
-    {
+ //   protected override void Update ()
+ //   {
 		
-	}
+	//}
 }

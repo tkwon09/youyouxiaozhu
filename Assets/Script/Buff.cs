@@ -2,23 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-interface setbuffparam
-{
-    void setTime(float durtime);
-}
-
 public abstract class Buff : MonoBehaviour
 {
-    public enum buffType {Enhence, Impair};
     public buffType type;
     public bool isTemp;
     public float time;
     public float counter = -1f;
 
     // called in Update()
-    public abstract void UpdateFunction();
+    protected abstract void UpdateFunction();
     // called in Start()
-    public abstract void StartFunction();
+    protected abstract void StartFunction();
+    protected abstract void EndFunction();
     public virtual void Disappear()
     {
         Destroy(gameObject, time);
@@ -32,8 +27,9 @@ public abstract class Buff : MonoBehaviour
     }
 
     // Use this for initialization
-    public virtual void Start ()
+    protected virtual void Start ()
     {
+        StartFunction();
         if (isTemp)
         {
             counter = time;
@@ -42,8 +38,13 @@ public abstract class Buff : MonoBehaviour
 	}
 
     // Update is called once per frame
-    public virtual void Update ()
+    protected virtual void Update ()
     {
         counter -= Time.deltaTime;
 	}
+
+    protected virtual void OnDestroy()
+    {
+        EndFunction();
+    }
 }

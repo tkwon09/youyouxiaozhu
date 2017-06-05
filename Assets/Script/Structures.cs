@@ -1,4 +1,5 @@
-﻿public struct buff
+﻿#region struct
+public struct buff
 {
     public string buffName;
     public bool isTemp;
@@ -24,7 +25,6 @@ public struct wbuff
     }
 }
 
-public enum damageType { physical, blended, chi };
 public struct damage
 {
     public damageType type;
@@ -38,3 +38,27 @@ public struct damage
         cDamage = cd;
     }
 }
+#endregion
+
+#region enum
+public enum damageType { physical, blended, chi };
+public enum EnemyType { idle, attack, guard };
+public enum Element { gold, wood, water, fire, earth };
+public enum buffType { Enhence, Impair };
+#endregion
+
+#region interface
+interface setbuffparam
+{
+    void setTime(float durtime);
+}
+
+public interface EnemyBehaviors
+{
+    void GetHurt();
+    void Attack();
+    void Die();
+    void Parry();
+    void Special();
+}
+#endregion

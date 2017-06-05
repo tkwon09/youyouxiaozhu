@@ -18,13 +18,7 @@ public class Attack : MonoBehaviour
     Attributes attr;
     GameObject player;
     public int weaponDamage;
-
-
     public float attackPhaseBonus = 0.2f;
-
-    
-
-    
 
     public List<wbuff> wbuffs = new List<wbuff>();
     public List<buff> buffs = new List<buff>();

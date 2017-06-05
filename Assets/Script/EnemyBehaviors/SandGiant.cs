@@ -1,8 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class DragonBoar : MonoBehaviour, EnemyBehaviors
-{
+public class SandGiant : MonoBehaviour,EnemyBehaviors {
+
     Animator anim;
     int scream;
     int basicAttack;
@@ -15,7 +16,7 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     void Awake()
     {
         anim = GetComponent<Animator>();
-        scream = Animator.StringToHash("Scream");
+        scream = Animator.StringToHash("Smash");
         basicAttack = Animator.StringToHash("Attack");
         getHit = Animator.StringToHash("Get Hit");
         walk = Animator.StringToHash("Walk");
@@ -43,34 +44,33 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     {
         Scream();
     }
-    public void Scream ()
-	{
-		anim.SetTrigger(scream);
-	}
+    public void Scream()
+    {
+        anim.SetTrigger(scream);
+    }
 
-	public void BasicAttack ()
-	{
-		anim.SetTrigger(basicAttack);
-	}
+    public void BasicAttack()
+    {
+        anim.SetTrigger(basicAttack);
+    }
 
-	public void GetHit ()
-	{
-		anim.SetTrigger(getHit);
-	}
+    public void GetHit()
+    {
+        anim.SetTrigger(getHit);
+    }
 
-	public void Walk ()
-	{
-		anim.SetTrigger(walk);
-	}
+    public void Walk()
+    {
+        anim.SetTrigger(walk);
+    }
 
-	public void DieAnim ()
-	{
-		anim.SetTrigger(die);
-	}
+    public void DieAnim()
+    {
+        anim.SetTrigger(die);
+    }
 
-	public void Run ()
-	{
-		anim.SetTrigger(run);
-	}
-		
+    public void Run()
+    {
+        anim.SetTrigger(run);
+    }
 }
