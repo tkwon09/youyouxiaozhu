@@ -190,7 +190,7 @@ public class Attributes : MonoBehaviour
         int chiDamage = 0;
         if (d.type == damageType.chi || d.type == damageType.blended)
         {
-            chiDamage = d.cDamage - (int)(0.3f * IP);
+            chiDamage = Mathf.Clamp(d.cDamage - (int)(0.3f * IP),0,d.cDamage);
             totalPD = d.pDamage +  chiDamage;
         }
         else
@@ -210,6 +210,8 @@ public class Attributes : MonoBehaviour
             cpop.GetComponent<Text>().text = "-" + chiDamage.ToString();
             Destroy(cpop, 1.25f);
         }
+        Debug.Log(totalPD);
+        Debug.Log(chiDamage);
     }
 
     public void DamagePop(int index)

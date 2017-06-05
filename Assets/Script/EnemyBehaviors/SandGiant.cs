@@ -5,27 +5,43 @@ using UnityEngine;
 public class SandGiant : MonoBehaviour,EnemyBehaviors {
 
     Animator anim;
-    int scream;
+    EnemyAttributes attr;
+    EnemyAttack attack;
+    int smash;
     int basicAttack;
     int getHit;
     int walk;
     int die;
     int run;
 
+    public damageType basicDamageType;
+    public int basicDamageP;
+    public int basicDamageC;
+    public damageType smashDamageType;
+    public int smashDamageP;
+    public int smashDamageC;
+    public damage basicDamage;
+    public damage smashDamage;
 
     void Awake()
     {
         anim = GetComponent<Animator>();
-        scream = Animator.StringToHash("Smash");
+        attr = GetComponent<EnemyAttributes>();
+        attack = attr.GetAttack();
+        attack.SetWholeCurrentDamage(basicDamage);
+        smash = Animator.StringToHash("Smash");
         basicAttack = Animator.StringToHash("Attack");
         getHit = Animator.StringToHash("Get Hit");
         walk = Animator.StringToHash("Walk");
         die = Animator.StringToHash("Die");
         run = Animator.StringToHash("Run");
+        basicDamage = new damage(basicDamageType, basicDamageP, basicDamageC);
+        smashDamage = new damage(smashDamageType, smashDamageP, smashDamageC);
     }
 
     void EnemyBehaviors.Attack()
     {
+        attack.SetWholeCurrentDamage(basicDamage);
         BasicAttack();
     }
     void EnemyBehaviors.GetHurt()
@@ -42,11 +58,12 @@ public class SandGiant : MonoBehaviour,EnemyBehaviors {
     }
     void EnemyBehaviors.Special()
     {
-        Scream();
+        attack.SetWholeCurrentDamage(smashDamage);
+        Smash();
     }
-    public void Scream()
+    public void Smash()
     {
-        anim.SetTrigger(scream);
+        anim.SetTrigger(smash);
     }
 
     public void BasicAttack()

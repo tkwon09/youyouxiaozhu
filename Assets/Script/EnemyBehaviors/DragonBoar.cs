@@ -4,6 +4,8 @@ using System.Collections;
 public class DragonBoar : MonoBehaviour, EnemyBehaviors
 {
     Animator anim;
+    EnemyAttributes attr;
+    EnemyAttack attack;
     int scream;
     int basicAttack;
     int getHit;
@@ -11,20 +13,34 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     int die;
     int run;
 
+    public damageType basicDamageType;
+    public int basicDamageP;
+    public int basicDamageC;
+    public damageType roarDamageType;
+    public int roarDamageP;
+    public int roarDamageC;
+
+    damage basicDamage;
+    damage roarDamage;
 
     void Awake()
     {
         anim = GetComponent<Animator>();
+        attr = GetComponent<EnemyAttributes>();
+        attack = attr.GetAttack();
         scream = Animator.StringToHash("Scream");
         basicAttack = Animator.StringToHash("Attack");
         getHit = Animator.StringToHash("Get Hit");
         walk = Animator.StringToHash("Walk");
         die = Animator.StringToHash("Die");
         run = Animator.StringToHash("Run");
+        basicDamage = new damage(basicDamageType, basicDamageP, basicDamageC);
+        roarDamage = new damage(roarDamageType, roarDamageP, roarDamageC);
     }
 
     void EnemyBehaviors.Attack()
     {
+        attack.SetWholeCurrentDamage(basicDamage);
         BasicAttack();
     }
     void EnemyBehaviors.GetHurt()
@@ -41,6 +57,7 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     }
     void EnemyBehaviors.Special()
     {
+        attack.SetWholeCurrentDamage(roarDamage);
         Scream();
     }
     public void Scream ()

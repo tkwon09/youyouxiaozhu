@@ -138,28 +138,38 @@ public class Attack : MonoBehaviour
         currentDamage.cDamage = cd;
     }
 
-    public void SetCurrentDamage(int d, int a)
+    public void SetCurrentDamage(int index, int amount)
     {
-        if (d != 0 && d != 1)
+        if (index != 0 && index != 1 || amount < 0)
             return;
-        if ((d == 1) && currentDamage.type == damageType.physical)
-            currentDamage.type = damageType.blended;
-        if(d == 0)
-            currentDamage.pDamage = a;
+        if (index == 1)
+        {
+            if (currentDamage.type == damageType.physical && amount > 0)
+                currentDamage.type = damageType.blended;
+            else if (currentDamage.type == damageType.blended && amount == 0)
+                currentDamage.type = damageType.physical;
+        }
+        if (index == 0)
+            currentDamage.pDamage = amount;
         else
-            currentDamage.cDamage = a;
+            currentDamage.cDamage = amount;
     }
 
-    public void AddCurrentDamage(int d, int a)
+    public void AddCurrentDamage(int index, int amount)
     {
-        if (d != 0 && d != 1)
+        if (index != 0 && index != 1)
             return;
-        if ((d == 1) && currentDamage.type == damageType.physical)
-            currentDamage.type = damageType.blended;
-        if (d == 0)
-            currentDamage.pDamage += a;
+        if (index == 1)
+        {
+            if (currentDamage.type == damageType.physical && amount > 0)
+                currentDamage.type = damageType.blended;
+            else if (currentDamage.type == damageType.blended && currentDamage.cDamage + amount <= 0)
+                currentDamage.type = damageType.physical;
+        }
+        if (index == 0)
+            currentDamage.pDamage = Mathf.Clamp(currentDamage.pDamage + amount, 0, int.MaxValue);
         else
-            currentDamage.cDamage += a;
+            currentDamage.cDamage = Mathf.Clamp(currentDamage.cDamage + amount, 0, int.MaxValue);
     }
 
     public void AddAttackPhaseBonus(int phase)

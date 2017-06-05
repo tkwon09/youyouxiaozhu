@@ -17,7 +17,6 @@ public class EnemyAttack : MonoBehaviour {
 
     public List<wbuff> wbuffs = new List<wbuff>();
     public List<buff> buffs = new List<buff>();
-    damage baseDamage;
     damage currentDamage;
 
     // Use this for initialization
@@ -26,9 +25,6 @@ public class EnemyAttack : MonoBehaviour {
         attackTarget = "Player";
         attr = transform.parent.GetComponent<EnemyAttributes>();
         player = GameObject.FindGameObjectWithTag("Player");
-        baseDamage.type = damageType.physical;
-        baseDamage.pDamage = damagePower;
-        currentDamage = baseDamage;
     }
 
     // Update is called once per frame
@@ -94,28 +90,38 @@ public class EnemyAttack : MonoBehaviour {
         currentDamage.cDamage = cd;
     }
 
-    public void SetCurrentDamage(int d, int a)
+    public void SetCurrentDamage(int index, int amount)
     {
-        if (d != 0 && d != 1)
+        if (index != 0 && index != 1 || amount < 0)
             return;
-        if ((d == 1) && currentDamage.type == damageType.physical)
-            currentDamage.type = damageType.blended;
-        if (d == 0)
-            currentDamage.pDamage = a;
+        if (index == 1)
+        {
+            if(currentDamage.type == damageType.physical && amount > 0)
+                currentDamage.type = damageType.blended;
+            else if(currentDamage.type == damageType.blended && amount == 0)
+                currentDamage.type = damageType.physical;
+        }
+        if (index == 0)
+            currentDamage.pDamage = amount;
         else
-            currentDamage.cDamage = a;
+            currentDamage.cDamage = amount;
     }
 
-    public void AddCurrentDamage(int d, int a)
+    public void AddCurrentDamage(int index, int amount)
     {
-        if (d != 0 && d != 1)
+        if (index != 0 && index != 1)
             return;
-        if ((d == 1) && currentDamage.type == damageType.physical)
-            currentDamage.type = damageType.blended;
-        if (d == 0)
-            currentDamage.pDamage += a;
+        if (index == 1)
+        {
+            if (currentDamage.type == damageType.physical && amount > 0)
+                currentDamage.type = damageType.blended;
+            else if (currentDamage.type == damageType.blended && currentDamage.cDamage + amount <= 0)
+                currentDamage.type = damageType.physical;
+        }
+        if (index == 0)
+            currentDamage.pDamage = Mathf.Clamp(currentDamage.pDamage + amount, 0, int.MaxValue);
         else
-            currentDamage.cDamage += a;
+            currentDamage.cDamage = Mathf.Clamp(currentDamage.cDamage + amount, 0, int.MaxValue);
     }
 
     public void AddAttackPhaseBonus(int phase)
@@ -139,11 +145,6 @@ public class EnemyAttack : MonoBehaviour {
             currentDamage.pDamage = damagePower * (1 + attr.attrGet(4) / 50);
         else
             currentDamage.cDamage = 0;
-    }
-
-    public void ResetWholeDamage()
-    {
-        currentDamage = baseDamage;
     }
 
     public string GetTargetLabel()
