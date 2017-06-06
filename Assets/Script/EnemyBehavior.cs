@@ -19,7 +19,7 @@ public class EnemyBehavior : MonoBehaviour {
     public float attackRange = 1f;
     public float speed;
     public float specialProb;
-    public int specialCost;
+    int specialCost;
 
     float currspeed = 0;
     float acc;
@@ -51,6 +51,7 @@ public class EnemyBehavior : MonoBehaviour {
         etype = GetComponent<EnemyAttributes>().enemyType;
         attr = GetComponent<EnemyAttributes>();
         behavior = (EnemyBehaviors)GetComponent(Type.GetType(etype));
+        specialCost = behavior.GetSpecialCost();
         player = GameObject.FindGameObjectWithTag("Player");
         animSpeed = Animator.StringToHash("Speed");
         anim = GetComponent<Animator>();
@@ -74,7 +75,7 @@ public class EnemyBehavior : MonoBehaviour {
             Vector3 dest = (player.transform.position - transform.position);
             dest.Scale(new Vector3(1, 0, 1));
             transform.rotation = Quaternion.LookRotation(dest);
-            if (dest.magnitude > attackRange)
+            if (dest.magnitude > attackRange && !istwined)
             {
                 currspeed = Mathf.Clamp(currspeed + acc * Time.fixedDeltaTime, currspeed, speed);
                 anim.SetFloat(animSpeed, currspeed / speed);
@@ -87,10 +88,13 @@ public class EnemyBehavior : MonoBehaviour {
                 if (attackReady)
                 {
                     StartCoroutine(AttackCoolDown());
-                    if (Random.value < specialProb && attr.Decrease(1, specialCost))
+                    if (Random.value < specialProb && attr.Decrease(1, specialCost, true) && !issealed)
                         behavior.Special();
                     else
-                        behavior.Attack();
+                    {
+                        if(!istwined)
+                            behavior.Attack();
+                    }
                 }
             }
         }

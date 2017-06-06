@@ -26,6 +26,9 @@ public class EnemyAttributes : MonoBehaviour {
     public GameObject chiPop;
     public bool isBlocking;
 
+    static Color32 highlightColor = new Color32(255, 255, 255, 255);
+    static Color32 defaultColor = new Color32(150, 150, 150, 255);
+
     // Use this for initialization
     void Start()
     {
@@ -36,6 +39,7 @@ public class EnemyAttributes : MonoBehaviour {
         health = maxHealth;
         chi = maxChi;
         UpdateUI();
+        ResetUI();
     }
 
     // Update is called once per frame
@@ -73,7 +77,9 @@ public class EnemyAttributes : MonoBehaviour {
         setbuffparam inter = (setbuffparam)temp.GetComponent(buffclass);
         if (buff.isTemp)
             inter.setTime(buff.time);
-        Instantiate(Resources.Load<GameObject>("Visual/" + buff.buffName), transform.position + Vector3.up * 3.5f, Quaternion.identity, temp.transform);
+        GameObject tempv = Resources.Load<GameObject>("Visual/" + buff.buffName);
+        if(tempv)
+            Instantiate(tempv, transform.position + (GetComponent<CharacterController>().height * 2) * Vector3.up, Quaternion.identity, temp.transform);
     }
 
     public void AddBuff(string name, bool istemp, float time = 0)
@@ -120,28 +126,42 @@ public class EnemyAttributes : MonoBehaviour {
 
     }
 
-    public bool Decrease(int index, int amount = 1)
+    public bool Decrease(int index, int amount = 1, bool self = false)
     {
         switch (index)
         {
             case 0:
                 if (health <= amount)
                 {
-                    health = 0;
-                    behavior.Die();
-                    UpdateUI();
-                    return false;
+                    if (self)
+                        return false;
+                    else
+                    {
+                        health = 0;
+                        behavior.Die();
+                        UpdateUI(0);
+                        return false;
+                    }
                 }
                 else
                 {
                     health -= amount;
-                    UpdateUI();
+                    UpdateUI(0);
                     return true;
                 }
             case 1:
                 if (chi <= amount)
                 {
-                    return false;
+                    if (self)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        chi = 0;
+                        UpdateUI(1);
+                        return false;
+                    }
                 }
                 else
                 {
@@ -169,6 +189,18 @@ public class EnemyAttributes : MonoBehaviour {
                 chiBar.fillAmount = (float)chi / maxChi;
                 break;
         }
+    }
+
+    public void HighLightUI()
+    {
+        healthBar.color = highlightColor;
+        chiBar.color = highlightColor;
+    }
+
+    public void ResetUI()
+    {
+        healthBar.color = defaultColor;
+        chiBar.color = defaultColor;
     }
 
     public EnemyAttack GetAttack()

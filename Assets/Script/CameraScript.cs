@@ -13,6 +13,7 @@ public class CameraScript : MonoBehaviour
     public float cameraAvoidSpeed;
     public float xSpeed = 120.0f;
     public float ySpeed = 120.0f;
+    public int aimRange;
 
     public float yMin = -20f;
     public float yMax = 80f;
@@ -29,6 +30,7 @@ public class CameraScript : MonoBehaviour
     private Quaternion targetRotation;
     private Vector3 targetPosition;
     float avoidanceStrength;
+    Transform currentTarget;
 
     // Use this for initialization
     void Start()
@@ -44,7 +46,7 @@ public class CameraScript : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update ()
+    void LateUpdate ()
     {
         x += Input.GetAxis("Mouse X") * xSpeed * Time.deltaTime;
         y -= Input.GetAxis("Mouse Y") * ySpeed * Time.deltaTime;
@@ -148,7 +150,7 @@ public class CameraScript : MonoBehaviour
         Vector3 zoomTotal = Vector3.zero;
         while (hit)
         {
-            Ray zoomRay = new Ray(transform.position - vectorToPosition.normalized + zoomTotal, vectorToPosition + vectorToPosition.normalized);
+            Ray zoomRay = new Ray(transform.position - vectorToPosition.normalized + zoomTotal, vectorToPosition.normalized);
             RaycastHit zoomRayHit;
             hit = false;
             if (Physics.Raycast(zoomRay, out zoomRayHit, vectorToPosition.magnitude))
@@ -168,8 +170,36 @@ public class CameraScript : MonoBehaviour
             }
         }
 
+        // Aim
+        Ray aimRay = new Ray(follow.position, Vector3.ProjectOnPlane(Camera.main.transform.forward,Vector3.up));
+        RaycastHit aimRayHit;
+        int aimLayerMask = 1 << 9;
+        if(Physics.Raycast(aimRay, out aimRayHit, aimRange, aimLayerMask))
+        {
+            if (currentTarget != aimRayHit.collider.transform.root)
+            {
+                aimRayHit.collider.transform.root.GetComponent<EnemyAttributes>().HighLightUI();
+                if(currentTarget != null)
+                    currentTarget.GetComponent<EnemyAttributes>().ResetUI();
+                currentTarget = aimRayHit.collider.transform.root;
+            }
+        }
+        else
+        {
+            if (currentTarget != null)
+            {
+                currentTarget.GetComponent<EnemyAttributes>().ResetUI();
+                currentTarget = null;
+            }
+        }
+
         // 2. Check if camera movement will block
         // 3. Check for camera collision
         // TODO : Decrease distance if there's something behind the camera or if the player's obstructed.
+    }
+
+    public Transform GetAimingTarget()
+    {
+        return currentTarget;
     }
 }

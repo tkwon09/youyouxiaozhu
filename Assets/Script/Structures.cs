@@ -60,5 +60,6 @@ public interface EnemyBehaviors
     void Die();
     void Parry();
     void Special();
+    int GetSpecialCost();
 }
 #endregion

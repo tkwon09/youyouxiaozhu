@@ -19,6 +19,7 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     public damageType roarDamageType;
     public int roarDamageP;
     public int roarDamageC;
+    public int roarCost;
 
     damage basicDamage;
     damage roarDamage;
@@ -59,6 +60,10 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     {
         attack.SetWholeCurrentDamage(roarDamage);
         Scream();
+    }
+    int EnemyBehaviors.GetSpecialCost()
+    {
+        return roarCost;
     }
     public void Scream ()
 	{

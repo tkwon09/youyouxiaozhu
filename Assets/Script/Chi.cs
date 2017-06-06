@@ -8,6 +8,7 @@ public class Chi : MonoBehaviour
     Element element;
     int damage;
     string attackTarget;
+    List<buff> buffs = new List<buff>();
 
 	// Use this for initialization
 	void Start ()
@@ -30,6 +31,11 @@ public class Chi : MonoBehaviour
         isFriendly = isfriendly;
     }
 
+    public void AddChiBuff(buff b)
+    {
+        buffs.Add(b);
+    }
+
     void OnTriggerEnter(Collider hit)
     {
         if (!hit.gameObject.CompareTag(attackTarget))
@@ -39,6 +45,10 @@ public class Chi : MonoBehaviour
         {
             damage currentDamage = new damage(damageType.chi,0,damage);
             a.TakeDamage(currentDamage);
+        }
+        foreach(buff b in buffs)
+        {
+            a.AddBuff(b);
         }
     }
 

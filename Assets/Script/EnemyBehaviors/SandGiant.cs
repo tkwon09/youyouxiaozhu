@@ -22,6 +22,7 @@ public class SandGiant : MonoBehaviour,EnemyBehaviors {
     public int smashDamageC;
     public damage basicDamage;
     public damage smashDamage;
+    public int smashCost;
 
     void Awake()
     {
@@ -60,6 +61,10 @@ public class SandGiant : MonoBehaviour,EnemyBehaviors {
     {
         attack.SetWholeCurrentDamage(smashDamage);
         Smash();
+    }
+    int EnemyBehaviors.GetSpecialCost()
+    {
+        return smashCost;
     }
     public void Smash()
     {

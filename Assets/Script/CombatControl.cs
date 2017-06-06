@@ -8,6 +8,7 @@ public class CombatControl : MonoBehaviour {
     public Attack attack;
     public Attributes attr;
     public State state;
+    public CameraScript cams;
 
     public bool isstun; // can't do anything
     public int stuncount;
@@ -85,6 +86,14 @@ public class CombatControl : MonoBehaviour {
             if (!attr.chiOn || !attr.UseChiSpell(0))
                 return;
             animator.SetTrigger("frontcast");
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            if (!attr.chiOn || !attr.UseChiSpell(1) || cams.GetAimingTarget() == null)
+                return;
+            state.twineTarget = cams.GetAimingTarget();
+            animator.SetTrigger("twinespell");
         }
         #endregion
     }

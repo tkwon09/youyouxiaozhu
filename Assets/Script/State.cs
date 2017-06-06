@@ -15,7 +15,9 @@ public class State : MonoBehaviour {
     public CombatControl cc;
     public int maxAttackPhase;
     public Transform rotationtransform;
+    public Transform twineTarget;
     public GameObject swordChi;
+    public CameraScript cams;
 
     bool inCombo;
     int counter = 0;
@@ -85,11 +87,20 @@ public class State : MonoBehaviour {
     {
         attr.CreateFrontCastChi();
     }
+    void CreateTwine()
+    {
+        attr.CreateTwineChi(twineTarget);
+    }
     void CreateChi()
     {
         attr.TurnChiOn();
     }
-
+    void TurnToTarget()
+    {
+        Transform target = cams.GetAimingTarget();
+        if(target != null)
+            rotationtransform.rotation = Quaternion.LookRotation(target.position - transform.position);
+    }
     IEnumerator ComboLast()
     {
         counter++;

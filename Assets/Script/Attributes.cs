@@ -34,6 +34,7 @@ public class Attributes : MonoBehaviour
     public Image staminaBar;
     public GameObject swordChi;
     public GameObject fcChi;
+    public GameObject twineChi;
     public GameObject healthPop;
     public GameObject chiPop;
     public bool chiOn;
@@ -78,7 +79,6 @@ public class Attributes : MonoBehaviour
         chi = maxChi;
         stamina = maxStamina;
     }
-
     public int[] attrSave()
     {
         int[] save = new int[] {KP,fame,dressing};
@@ -170,7 +170,7 @@ public class Attributes : MonoBehaviour
         setbuffparam inter = (setbuffparam)temp.GetComponent(buffclass);
         if(buff.isTemp)
             inter.setTime(buff.time);
-        Instantiate(Resources.Load<GameObject>("Visual/" + buff.buffName),transform.position+Vector3.up*3.5f,Quaternion.identity,temp.transform);
+        Instantiate(Resources.Load<GameObject>("Visual/" + buff.buffName),transform.position + (GetComponent<CharacterController>().height) * Vector3.up,Quaternion.identity,temp.transform);
     }
 
     public void AddBuff(string name, bool istemp, float time = 0)
@@ -210,8 +210,6 @@ public class Attributes : MonoBehaviour
             cpop.GetComponent<Text>().text = "-" + chiDamage.ToString();
             Destroy(cpop, 1.25f);
         }
-        Debug.Log(totalPD);
-        Debug.Log(chiDamage);
     }
 
     public void DamagePop(int index)
@@ -262,11 +260,19 @@ public class Attributes : MonoBehaviour
         switch(index)
         {
             case 0:
-                if (chi < 20)
+                if (chi < 60)
                     return false;
                 else
                 {
-                    Decrease(1, 20);
+                    Decrease(1, 50);
+                    return true;
+                }
+            case 1:
+                if (chi < 40)
+                    return false;
+                else
+                {
+                    Decrease(1, 30);
                     return true;
                 }
             default:
@@ -278,31 +284,52 @@ public class Attributes : MonoBehaviour
     {
         GameObject tempChi = Instantiate(fcChi, transform.position + 2.5f * (rotationtransform.forward) + 1.5f * Vector3.up, rotationtransform.rotation);
         tempChi.AddComponent<Chi>();
-        tempChi.GetComponent<Chi>().SetChi(currentElement,(int)(currentElementMastery / 100.0f * IP));
+        tempChi.GetComponent<Chi>().SetChi(currentElement,(int)(currentElementMastery / 100.0f * IP * 2.5f));
         Destroy(tempChi, 1);
     }
 
-    bool Decrease(int index, int amount = 1)
+    public void CreateTwineChi(Transform target)
+    {
+        GameObject tempChi = Instantiate(twineChi, target.position + Vector3.up * 1.5f, Quaternion.identity);
+        tempChi.AddComponent<Chi>();
+        tempChi.GetComponent<Chi>().SetChi(currentElement, (int)(currentElementMastery / 100.0f * IP * 1f));
+        tempChi.GetComponent<Chi>().AddChiBuff(new buff("Twine",true,3));
+        Destroy(tempChi, 3);
+    }
+
+    bool Decrease(int index, int amount = 1, bool self = false)
     {
         switch (index)
         {
             case 0:
                 if (health <= amount)
                 {
-                    health = 0;
-                    UpdateUI();
-                    return false;
+                    if (self)
+                        return false;
+                    else
+                    {
+                        health = 0;
+                        UpdateUI(0);
+                        return false;
+                    }
                 }
                 else
                 {
                     health -= amount;
-                    UpdateUI();
+                    UpdateUI(0);
                     return true;
                 }
             case 1:
                 if (chi <= amount)
                 {
-                    return false;
+                    if(self)
+                        return false;
+                    else
+                    {
+                        chi = 0;
+                        UpdateUI(1);
+                        return false;
+                    }
                 }
                 else
                 {
@@ -313,7 +340,14 @@ public class Attributes : MonoBehaviour
             case 2:
                 if (stamina <= amount)
                 {
-                    return false;
+                    if(self)
+                        return false;
+                    else
+                    {
+                        stamina = 0;
+                        UpdateUI(2);
+                        return false;
+                    }
                 }
                 else
                 {
