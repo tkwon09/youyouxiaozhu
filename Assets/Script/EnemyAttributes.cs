@@ -79,7 +79,7 @@ public class EnemyAttributes : MonoBehaviour {
             inter.setTime(buff.time);
         GameObject tempv = Resources.Load<GameObject>("Visual/" + buff.buffName);
         if(tempv)
-            Instantiate(tempv, transform.position + (GetComponent<CharacterController>().height * 2) * Vector3.up, Quaternion.identity, temp.transform);
+            Instantiate(tempv, transform.position + (GetComponent<CharacterController>().height * 2.3f) * Vector3.up, Quaternion.identity, temp.transform);
     }
 
     public void AddBuff(string name, bool istemp, float time = 0)

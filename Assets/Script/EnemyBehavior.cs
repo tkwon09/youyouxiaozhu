@@ -25,6 +25,7 @@ public class EnemyBehavior : MonoBehaviour {
     float acc;
 
     GameObject player;
+    CharacterController controller;
     string etype;
 
     bool offencing;
@@ -55,6 +56,7 @@ public class EnemyBehavior : MonoBehaviour {
         player = GameObject.FindGameObjectWithTag("Player");
         animSpeed = Animator.StringToHash("Speed");
         anim = GetComponent<Animator>();
+        controller = GetComponent<CharacterController>();
         acc = speed / 3;
         StartCoroutine(Behave());
 	}
@@ -79,7 +81,8 @@ public class EnemyBehavior : MonoBehaviour {
             {
                 currspeed = Mathf.Clamp(currspeed + acc * Time.fixedDeltaTime, currspeed, speed);
                 anim.SetFloat(animSpeed, currspeed / speed);
-                transform.position += currspeed * dest.normalized * Time.fixedDeltaTime;
+                controller.Move(currspeed * dest.normalized * Time.fixedDeltaTime);
+                //transform.position += currspeed * dest.normalized * Time.fixedDeltaTime;
             }
             else
             {
