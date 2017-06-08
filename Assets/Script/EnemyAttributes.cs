@@ -27,7 +27,7 @@ public class EnemyAttributes : MonoBehaviour {
     public bool isBlocking;
 
     static Color32 highlightColor = new Color32(255, 255, 255, 255);
-    static Color32 defaultColor = new Color32(150, 150, 150, 255);
+    static Color32 defaultColor = new Color32(150, 150, 150, 130);
 
     // Use this for initialization
     void Start()

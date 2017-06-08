@@ -91,7 +91,7 @@ public class CombatControl : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            if (!attr.chiOn || !attr.UseChiSpell(1) || cams.GetAimingTarget() == null)
+            if (!attr.chiOn || cams.GetAimingTarget() == null || !attr.UseChiSpell(1))
                 return;
             state.twineTarget = cams.GetAimingTarget();
             animator.SetTrigger("twinespell");

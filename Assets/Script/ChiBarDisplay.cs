@@ -21,7 +21,9 @@ public class ChiBarDisplay : MonoBehaviour {
     public CameraScript cams;
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
+        currentOnElement = 2;
 	}
 	
 	// Update is called once per frame
@@ -76,7 +78,7 @@ public class ChiBarDisplay : MonoBehaviour {
         element.SetActive(true);
         elementOn = true;
         cams.UIOn = true;
-        HighlightElement(2);
+        HighlightElement(currentOnElement);
     }
 
     public void HideElement()
@@ -95,7 +97,8 @@ public class ChiBarDisplay : MonoBehaviour {
 
     void ResetElement()
     {
-        element.transform.GetChild(currentOnElement).GetComponent<Image>().color = new Color32(150, 150, 150, 255);
+        element.transform.GetChild(currentOnElement).GetComponent<Image>().color = new Color32(150, 150, 150, 130);
     }
+
 
 }
