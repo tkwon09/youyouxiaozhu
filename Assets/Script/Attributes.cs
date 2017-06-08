@@ -33,6 +33,7 @@ public class Attributes : MonoBehaviour
     public Image healthBar;
     public Image chiBar;
     public Image staminaBar;
+    public ParticleSystem swordChiParticle;
     public GameObject swordChi;
     public GameObject fcChi;
     public GameObject twineChi;
@@ -43,16 +44,16 @@ public class Attributes : MonoBehaviour
 
     InnerKF.plus IKFplus;
 
-    public int[] elementMaster = new int[5];
-    public Element currentElement;
-    float currentElementMastery;
+    Color32[] elementColors = new Color32[5] {new Color32(255,255,75,255), new Color32(30, 255, 20, 255), new Color32(75, 155, 255, 255), new Color32(255, 10, 10, 255), new Color32(115, 70, 0, 255) };
+    public int[] elementMastery = new int[5];
+    Element currentElement = Element.none;
+    int currentElementMastery;
 
     // Use this for initialization
     void Start()
     {
         buffs = transform.Find("Buffs");
         damagePrompt = transform.Find("DamagePrompt");
-        currentElementMastery = elementMaster[(int)currentElementMastery];
         //StartCoroutine(DebugAttr());
     }
 
@@ -220,7 +221,7 @@ public class Attributes : MonoBehaviour
 
     public bool StartChi()
     {
-        if (chi >= 5)
+        if (chi >= 5 && currentElement != Element.none)
         {
             chiOn = true;
             attack.AddCurrentDamage(1,(int)(IP * 0.5f));
@@ -384,6 +385,13 @@ public class Attributes : MonoBehaviour
                 staminaBar.fillAmount = (float)stamina / maxStamina;
                 break;
         }
+    }
+
+    public void ChangeCurrentElement(int index)
+    {
+        currentElement = (Element)index;
+        currentElementMastery = elementMastery[(int)currentElement];
+        swordChiParticle.startColor = elementColors[(int)currentElement];
     }
 
     void OnTriggerEnter(Collider hit)

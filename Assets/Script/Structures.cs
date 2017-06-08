@@ -43,7 +43,7 @@ public struct damage
 #region enum
 public enum damageType { physical, blended, chi };
 public enum EnemyType { idle, attack, guard };
-public enum Element { gold, wood, water, fire, earth };
+public enum Element { none = -1, gold, wood, water, fire, earth };
 public enum buffType { Enhence, Impair };
 #endregion
 

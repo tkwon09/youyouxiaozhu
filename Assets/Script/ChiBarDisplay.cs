@@ -14,15 +14,18 @@ public class ChiBarDisplay : MonoBehaviour {
     float minSpinSpeed = 0f;
 
     bool elementOn;
+    bool elementNull;
     float mouseBound = 0.5f;
 
     public GameObject element;
-    int currentOnElement;
     public CameraScript cams;
+    public Attributes attr;
+    int currentOnElement;
 
 	// Use this for initialization
 	void Start ()
     {
+        elementNull = true;
         currentOnElement = 2;
 	}
 	
@@ -78,7 +81,8 @@ public class ChiBarDisplay : MonoBehaviour {
         element.SetActive(true);
         elementOn = true;
         cams.UIOn = true;
-        HighlightElement(currentOnElement);
+        if(!elementNull)
+            HighlightElement(currentOnElement);
     }
 
     public void HideElement()
@@ -86,13 +90,16 @@ public class ChiBarDisplay : MonoBehaviour {
         ResetElement();
         element.SetActive(false);
         cams.UIOn = false;
+        elementOn = false;
     }
 
     void HighlightElement(int index)
     {
         index = Mathf.Clamp(index, 0, 4);
         currentOnElement = index;
+        attr.ChangeCurrentElement(currentOnElement);
         element.transform.GetChild(currentOnElement).GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+        elementNull = false;
     }
 
     void ResetElement()
@@ -100,5 +107,12 @@ public class ChiBarDisplay : MonoBehaviour {
         element.transform.GetChild(currentOnElement).GetComponent<Image>().color = new Color32(150, 150, 150, 130);
     }
 
+    public int GetCurrentElement()
+    {
+        if (elementNull)
+            return -1;
+        else
+            return currentOnElement;
+    }
 
 }
