@@ -27,6 +27,7 @@ public class Attributes : MonoBehaviour
     Transform damagePrompt;
     public Attack attack;
     public DataManager dataManager;
+    public ChiBarDisplay TaiChi;
     public Animator animator;
     public Transform rotationtransform;
     public Image healthBar;
@@ -232,6 +233,7 @@ public class Attributes : MonoBehaviour
 
     public void TurnChiOn()
     {
+        TaiChi.SteadySpin();
         swordChi.SetActive(true);
     }
 
@@ -240,6 +242,7 @@ public class Attributes : MonoBehaviour
         chiOn = false;
         swordChi.SetActive(false);
         attack.ResetWholeDamage();
+        TaiChi.NormalSpin();
     }
 
     IEnumerator ChiDec()
@@ -265,6 +268,7 @@ public class Attributes : MonoBehaviour
                 else
                 {
                     Decrease(1, 50);
+                    TaiChi.AddSpeed(6);
                     return true;
                 }
             case 1:
@@ -273,6 +277,7 @@ public class Attributes : MonoBehaviour
                 else
                 {
                     Decrease(1, 30);
+                    TaiChi.AddSpeed(4);
                     return true;
                 }
             default:

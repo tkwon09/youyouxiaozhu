@@ -17,16 +17,16 @@ Platform assembly: E:\数据\youyouxiaozhu\test_Data\Managed\UnityEngine.Network
 Loading E:\数据\youyouxiaozhu\test_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
 Platform assembly: E:\数据\youyouxiaozhu\test_Data\Managed\UnityEngine.Analytics.dll (this message is harmless)
 Loading E:\数据\youyouxiaozhu\test_Data\Managed\UnityEngine.Analytics.dll into Unity Child Domain
-- Completed reload, in  0.014 seconds
+- Completed reload, in  0.015 seconds
 Platform assembly: E:\数据\youyouxiaozhu\test_Data\Managed\System.Core.dll (this message is harmless)
 Platform assembly: E:\数据\youyouxiaozhu\test_Data\Managed\System.dll (this message is harmless)
 desktop: 3440x1440 60Hz; virtual: 3440x1440 at 0,0
 <RI> Initializing input.
 <RI> Input initialized.
 <RI> Initialized touch support.
-UnloadTime: 3.751544 ms
+UnloadTime: 2.914198 ms
 Setting up 4 worker threads for Enlighten.
-  Thread -> id: 660c -> priority: 1 
-  Thread -> id: 565c -> priority: 1 
-  Thread -> id: b58 -> priority: 1 
-  Thread -> id: 66f4 -> priority: 1 
+  Thread -> id: 1b68 -> priority: 1 
+  Thread -> id: 6ac -> priority: 1 
+  Thread -> id: 24b4 -> priority: 1 
+  Thread -> id: 3454 -> priority: 1 

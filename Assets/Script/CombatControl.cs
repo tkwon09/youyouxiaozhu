@@ -7,6 +7,7 @@ public class CombatControl : MonoBehaviour {
     public Animator animator;
     public Attack attack;
     public Attributes attr;
+    public ChiBarDisplay TaiChi;
     public State state;
     public CameraScript cams;
 
@@ -96,6 +97,15 @@ public class CombatControl : MonoBehaviour {
             animator.SetTrigger("twinespell");
         }
         #endregion
+
+        if(Input.GetKeyDown(KeyCode.Q))
+        {
+            TaiChi.ShowElement();
+        }
+        if(Input.GetKeyUp(KeyCode.Q))
+        {
+            TaiChi.HideElement();
+        }
     }
 
     public void SetDisable(int index)

@@ -24,13 +24,16 @@ public class CameraScript : MonoBehaviour
     public int obstacleAvoidanceIterations;
     public float avoidanceRecoveryTime;
 
+
     float x = 0.0f;
     float y = 0.0f;
+
     private float targetDistance;
     private Quaternion targetRotation;
     private Vector3 targetPosition;
     float avoidanceStrength;
     Transform currentTarget;
+    public bool UIOn = false;
 
     // Use this for initialization
     void Start()
@@ -48,8 +51,12 @@ public class CameraScript : MonoBehaviour
     // Update is called once per frame
     void LateUpdate ()
     {
-        x += Input.GetAxis("Mouse X") * xSpeed * Time.deltaTime;
-        y -= Input.GetAxis("Mouse Y") * ySpeed * Time.deltaTime;
+        if (!UIOn)
+        {
+            x += Input.GetAxis("Mouse X") * xSpeed * Time.deltaTime;
+            y -= Input.GetAxis("Mouse Y") * ySpeed * Time.deltaTime;
+            targetDistance = Mathf.Clamp(targetDistance - Input.GetAxis("Mouse ScrollWheel") * 5, distanceMin, distanceMax);
+        }
 
         if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
         {
@@ -70,7 +77,7 @@ public class CameraScript : MonoBehaviour
             y -= 360F;
         y = Mathf.Clamp(y, yMin, yMax);
 
-        targetDistance = Mathf.Clamp(targetDistance - Input.GetAxis("Mouse ScrollWheel") * 5, distanceMin, distanceMax);
+        
         distance = Mathf.Lerp(distance, targetDistance, zoomSpeed * Time.deltaTime);
 
         targetRotation = Quaternion.Euler(y, x, 0);
