@@ -30,12 +30,14 @@ public struct damage
     public damageType type;
     public int pDamage;
     public int cDamage;
+    public Element element;
 
-    public damage(damageType t, int pd, int cd = 0)
+    public damage(damageType t, int pd, int cd = 0, Element e = Element.none)
     {
         type = t;
         pDamage = pd;
         cDamage = cd;
+        element = e;
     }
 }
 #endregion
@@ -59,7 +61,7 @@ public interface EnemyBehaviors
     void Attack();
     void Die();
     void Parry();
-    void Special();
+    bool Special();
     int GetSpecialCost();
 }
 #endregion

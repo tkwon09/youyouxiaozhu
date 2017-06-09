@@ -44,7 +44,6 @@ public class Attributes : MonoBehaviour
 
     InnerKF.plus IKFplus;
 
-    Color32[] elementColors = new Color32[5] {new Color32(255,255,75,255), new Color32(30, 255, 20, 255), new Color32(75, 155, 255, 255), new Color32(255, 10, 10, 255), new Color32(115, 70, 0, 255) };
     public int[] elementMastery = new int[5];
     Element currentElement = Element.none;
     int currentElementMastery;
@@ -192,7 +191,7 @@ public class Attributes : MonoBehaviour
         int chiDamage = 0;
         if (d.type == damageType.chi || d.type == damageType.blended)
         {
-            chiDamage = Mathf.Clamp(d.cDamage - (int)(0.3f * IP),0,d.cDamage);
+            chiDamage = Mathf.Clamp((int)(d.cDamage * (1 - elementMastery[(int)d.element] / 100f)) - (int)(0.3f * IP), 0, 2 * d.cDamage);
             totalPD = d.pDamage +  chiDamage;
         }
         else
@@ -224,7 +223,7 @@ public class Attributes : MonoBehaviour
         if (chi >= 5 && currentElement != Element.none)
         {
             chiOn = true;
-            attack.AddCurrentDamage(1,(int)(IP * 0.5f));
+            attack.AddCurrentDamage(1,(int)(IP * 0.8f * currentElementMastery / 100),currentElement);
             StartCoroutine(ChiDec());
             return true;
         }
@@ -253,8 +252,7 @@ public class Attributes : MonoBehaviour
             yield return new WaitForSeconds(1);
             if (!Decrease(1,10))
             {
-                chiOn = false;
-                attack.ResetWholeDamage();
+                EndChi();
             }
         }
     }
@@ -290,7 +288,7 @@ public class Attributes : MonoBehaviour
     {
         GameObject tempChi = Instantiate(fcChi, transform.position + 2.5f * (rotationtransform.forward) + 1.5f * Vector3.up, rotationtransform.rotation);
         tempChi.AddComponent<Chi>();
-        tempChi.GetComponent<Chi>().SetChi(currentElement,(int)(currentElementMastery / 100.0f * IP * 2.5f));
+        tempChi.GetComponent<Chi>().SetChi(currentElement,(int)(currentElementMastery / 100.0f * IP * 1.8f));
         Destroy(tempChi, 1);
     }
 
@@ -391,7 +389,7 @@ public class Attributes : MonoBehaviour
     {
         currentElement = (Element)index;
         currentElementMastery = elementMastery[(int)currentElement];
-        swordChiParticle.startColor = elementColors[(int)currentElement];
+        swordChiParticle.startColor = ChiBarDisplay.elementColors[(int)currentElement];
     }
 
     void OnTriggerEnter(Collider hit)

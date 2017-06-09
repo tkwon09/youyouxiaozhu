@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class SandGiant : MonoBehaviour,EnemyBehaviors {
 
@@ -8,42 +9,56 @@ public class SandGiant : MonoBehaviour,EnemyBehaviors {
     EnemyAttributes attr;
     EnemyAttack attack;
     int smash;
-    int basicAttack;
+    int basicAttack1;
+    int basicAttack2;
     int getHit;
     int walk;
     int die;
     int run;
 
     public damageType basicDamageType;
-    public int basicDamageP;
+    public int basicDamageP1;
+    public int basicDamageP2;
     public int basicDamageC;
+    public float attack1Prob;
     public damageType smashDamageType;
     public int smashDamageP;
     public int smashDamageC;
-    public damage basicDamage;
+    public damage basicDamage1;
+    public damage basicDamage2;
     public damage smashDamage;
     public int smashCost;
+    public float smashProb;
 
     void Awake()
     {
         anim = GetComponent<Animator>();
         attr = GetComponent<EnemyAttributes>();
         attack = attr.GetAttack();
-        attack.SetWholeCurrentDamage(basicDamage);
         smash = Animator.StringToHash("Smash");
-        basicAttack = Animator.StringToHash("Attack");
+        basicAttack1 = Animator.StringToHash("Attack1");
+        basicAttack2 = Animator.StringToHash("Attack2");
         getHit = Animator.StringToHash("Get Hit");
         walk = Animator.StringToHash("Walk");
         die = Animator.StringToHash("Die");
         run = Animator.StringToHash("Run");
-        basicDamage = new damage(basicDamageType, basicDamageP, basicDamageC);
+        basicDamage1 = new damage(basicDamageType, basicDamageP1, basicDamageC);
+        basicDamage2 = new damage(basicDamageType, basicDamageP2, basicDamageC);
         smashDamage = new damage(smashDamageType, smashDamageP, smashDamageC);
     }
 
     void EnemyBehaviors.Attack()
     {
-        attack.SetWholeCurrentDamage(basicDamage);
-        BasicAttack();
+        if (Random.value <= attack1Prob)
+        {
+            attack.SetWholeCurrentDamage(basicDamage1);
+            BasicAttack1();
+        }
+        else
+        {
+            attack.SetWholeCurrentDamage(basicDamage2);
+            BasicAttack2();
+        }
     }
     void EnemyBehaviors.GetHurt()
     {
@@ -57,10 +72,15 @@ public class SandGiant : MonoBehaviour,EnemyBehaviors {
     {
         return;
     }
-    void EnemyBehaviors.Special()
+    bool EnemyBehaviors.Special()
     {
-        attack.SetWholeCurrentDamage(smashDamage);
-        Smash();
+        if (Random.value <= smashProb)
+        {
+            attack.SetWholeCurrentDamage(smashDamage);
+            Smash();
+            return true;
+        }
+        return false;
     }
     int EnemyBehaviors.GetSpecialCost()
     {
@@ -71,11 +91,14 @@ public class SandGiant : MonoBehaviour,EnemyBehaviors {
         anim.SetTrigger(smash);
     }
 
-    public void BasicAttack()
+    public void BasicAttack1()
     {
-        anim.SetTrigger(basicAttack);
+        anim.SetTrigger(basicAttack1);
     }
-
+    public void BasicAttack2()
+    {
+        anim.SetTrigger(basicAttack2);
+    }
     public void GetHit()
     {
         anim.SetTrigger(getHit);

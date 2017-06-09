@@ -33,13 +33,5 @@ public class EnemyState : MonoBehaviour {
     {
         attack.isAttack = false;
     }
-    void isBlocking()
-    {
-        attr.isBlocking = true;
-    }
-    void endBlocking()
-    {
-        attr.isBlocking = false;
-    }
 
 }

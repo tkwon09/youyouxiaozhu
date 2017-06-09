@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Random = UnityEngine.Random;
 
 public class DragonBoar : MonoBehaviour, EnemyBehaviors
 {
@@ -20,6 +21,7 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     public int roarDamageP;
     public int roarDamageC;
     public int roarCost;
+    public float roarProb;
 
     damage basicDamage;
     damage roarDamage;
@@ -56,10 +58,15 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     {
         return;
     }
-    void EnemyBehaviors.Special()
+    bool EnemyBehaviors.Special()
     {
-        attack.SetWholeCurrentDamage(roarDamage);
-        Scream();
+        if (Random.value < roarProb)
+        {
+            attack.SetWholeCurrentDamage(roarDamage);
+            Scream();
+            return true;
+        }
+        return false;
     }
     int EnemyBehaviors.GetSpecialCost()
     {

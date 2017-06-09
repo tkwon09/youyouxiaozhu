@@ -18,12 +18,15 @@ public class ChiBarDisplay : MonoBehaviour {
     float mouseBound = 0.5f;
 
     public GameObject element;
+    public ParticleSystem chiElementPromt;
     public CameraScript cams;
     public Attributes attr;
     int currentOnElement;
 
-	// Use this for initialization
-	void Start ()
+    public static Color32[] elementColors = new Color32[5] { new Color32(255, 255, 75, 255), new Color32(30, 255, 20, 255), new Color32(75, 155, 255, 255), new Color32(255, 10, 10, 255), new Color32(115, 70, 0, 255) };
+
+    // Use this for initialization
+    void Start ()
     {
         elementNull = true;
         currentOnElement = 2;
@@ -69,11 +72,13 @@ public class ChiBarDisplay : MonoBehaviour {
     {
         spinSpeed = steadSpinSpeed;
         minSpinSpeed = steadSpinSpeed;
+        chiElementPromt.gameObject.SetActive(true);
     }
 
     public void NormalSpin()
     {
         minSpinSpeed = 0;
+        chiElementPromt.gameObject.SetActive(false);
     }
 
     public void ShowElement()
@@ -99,6 +104,7 @@ public class ChiBarDisplay : MonoBehaviour {
         currentOnElement = index;
         attr.ChangeCurrentElement(currentOnElement);
         element.transform.GetChild(currentOnElement).GetComponent<Image>().color = new Color32(255, 255, 255, 255);
+        chiElementPromt.startColor = elementColors[currentOnElement];
         elementNull = false;
     }
 

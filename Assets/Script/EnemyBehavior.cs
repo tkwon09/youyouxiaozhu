@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using Random = UnityEngine.Random;
 
 // Should have Walk and run Blend tree
 // Step1: Copy read-only animation and complete animator
@@ -18,7 +17,6 @@ public class EnemyBehavior : MonoBehaviour {
     public float attackCooldown;
     public float attackRange = 1f;
     public float speed;
-    public float specialProb;
     int specialCost;
 
     float currspeed = 0;
@@ -91,13 +89,9 @@ public class EnemyBehavior : MonoBehaviour {
                 if (attackReady)
                 {
                     StartCoroutine(AttackCoolDown());
-                    if (Random.value < specialProb && attr.Decrease(1, specialCost, true) && !issealed)
-                        behavior.Special();
-                    else
-                    {
-                        if(!istwined)
+                    if (!issealed && !behavior.Special())
+                        if (!istwined)
                             behavior.Attack();
-                    }
                 }
             }
         }

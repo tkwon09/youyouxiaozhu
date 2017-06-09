@@ -24,7 +24,7 @@ public class EnemyAttributes : MonoBehaviour {
     public DataManager dataManager;
     public GameObject healthPop;
     public GameObject chiPop;
-    public bool isBlocking;
+    public int[] elementResistance = new int[5];
 
     static Color32 highlightColor = new Color32(255, 255, 255, 255);
     static Color32 defaultColor = new Color32(150, 150, 150, 130);
@@ -99,7 +99,7 @@ public class EnemyAttributes : MonoBehaviour {
         int chiDamage = 0;
         if (d.type == damageType.chi || d.type == damageType.blended)
         {
-            chiDamage = Mathf.Clamp(d.cDamage - (int)(0.3f * IP), 0, d.cDamage);
+            chiDamage = Mathf.Clamp((int)(d.cDamage * (1 - elementResistance[(int)d.element] / 100f)) - (int)(0.3f * IP), 0, 2 * d.cDamage);
             totalPD = d.pDamage + chiDamage;
         }
         else

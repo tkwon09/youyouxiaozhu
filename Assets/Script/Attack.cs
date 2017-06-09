@@ -131,23 +131,30 @@ public class Attack : MonoBehaviour
         currentDamage = d;
     }
 
-    public void SetWholeCurrentDamage(damageType dt, int pd, int cd = 0)
+    public void SetWholeCurrentDamage(damageType dt, int pd, int cd = 0, Element e = Element.none)
     {
         currentDamage.type = dt;
         currentDamage.pDamage = pd;
         currentDamage.cDamage = cd;
+        currentDamage.element = e;
     }
 
-    public void SetCurrentDamage(int index, int amount)
+    public void SetCurrentDamage(int index, int amount, Element e = Element.none)
     {
         if (index != 0 && index != 1 || amount < 0)
             return;
         if (index == 1)
         {
             if (currentDamage.type == damageType.physical && amount > 0)
+            {
                 currentDamage.type = damageType.blended;
+                currentDamage.element = e;
+            }
             else if (currentDamage.type == damageType.blended && amount == 0)
+            {
                 currentDamage.type = damageType.physical;
+                currentDamage.element = Element.none;
+            }
         }
         if (index == 0)
             currentDamage.pDamage = amount;
@@ -155,17 +162,27 @@ public class Attack : MonoBehaviour
             currentDamage.cDamage = amount;
     }
 
-    public void AddCurrentDamage(int index, int amount)
+    public void AddCurrentDamage(int index, int amount, Element e = Element.none)
     {
         if (index != 0 && index != 1)
             return;
         if (index == 1)
         {
             if (currentDamage.type == damageType.physical && amount > 0)
+            {
                 currentDamage.type = damageType.blended;
+                if (e != Element.none && currentDamage.element != e)
+                    if (currentDamage.cDamage <= amount)
+                        currentDamage.element = e;
+
+            }
             else if (currentDamage.type == damageType.blended && currentDamage.cDamage + amount <= 0)
+            {
                 currentDamage.type = damageType.physical;
+                currentDamage.element = Element.none;
+            }
         }
+
         if (index == 0)
             currentDamage.pDamage = Mathf.Clamp(currentDamage.pDamage + amount, 0, int.MaxValue);
         else
