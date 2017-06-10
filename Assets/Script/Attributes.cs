@@ -389,6 +389,11 @@ public class Attributes : MonoBehaviour
     {
         currentElement = (Element)index;
         currentElementMastery = elementMastery[(int)currentElement];
+        if(chiOn)
+        {
+            attack.ResetWholeDamage();
+            attack.AddCurrentDamage(1, (int)(IP * 0.8f * currentElementMastery / 100), currentElement);
+        }
         swordChiParticle.startColor = ChiBarDisplay.elementColors[(int)currentElement];
     }
 

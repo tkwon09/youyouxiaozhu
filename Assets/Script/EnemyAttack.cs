@@ -13,7 +13,6 @@ public class EnemyAttack : MonoBehaviour {
     Animator anim;
     EnemyAttributes attr;
     GameObject player;
-    public int damagePower;
 
     public List<wbuff> wbuffs = new List<wbuff>();
     public List<buff> buffs = new List<buff>();
@@ -149,19 +148,7 @@ public class EnemyAttack : MonoBehaviour {
 
     public void ResetDamage(int d = 0)
     {
-        if (d != 0 && d != 1)
-            return;
-        if (currentDamage.type == damageType.blended)
-        {
-            if (d == 0)
-                currentDamage.type = damageType.chi;
-            else
-                currentDamage.type = damageType.physical;
-        }
-        if (d == 0)
-            currentDamage.pDamage = damagePower * (1 + attr.attrGet(4) / 50);
-        else
-            currentDamage.cDamage = 0;
+
     }
 
     public string GetTargetLabel()

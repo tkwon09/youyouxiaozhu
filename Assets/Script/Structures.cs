@@ -63,5 +63,7 @@ public interface EnemyBehaviors
     void Parry();
     bool Special();
     int GetSpecialCost();
+    void GetBehaviorParams(out float attackcooldown, out float attackrange, out float maxspeed);
+    void GetAttrbuteParams(out int maxhealth, out int maxchi, out int ip, int[] elementResis);
 }
 #endregion

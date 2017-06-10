@@ -16,6 +16,13 @@ public class SandGiant : MonoBehaviour,EnemyBehaviors {
     int die;
     int run;
 
+    public int maxHealth;
+    public int maxChi;
+    public int IP;
+    public float attackCooldown;
+    public float attackRange;
+    public float maxSpeed;
+
     public damageType basicDamageType;
     public int basicDamageP1;
     public int basicDamageP2;
@@ -29,6 +36,7 @@ public class SandGiant : MonoBehaviour,EnemyBehaviors {
     public damage smashDamage;
     public int smashCost;
     public float smashProb;
+    public int[] elementResistance = new int[5];
 
     void Awake()
     {
@@ -44,7 +52,7 @@ public class SandGiant : MonoBehaviour,EnemyBehaviors {
         run = Animator.StringToHash("Run");
         basicDamage1 = new damage(basicDamageType, basicDamageP1, basicDamageC);
         basicDamage2 = new damage(basicDamageType, basicDamageP2, basicDamageC);
-        smashDamage = new damage(smashDamageType, smashDamageP, smashDamageC);
+        smashDamage = new damage(smashDamageType, smashDamageP, smashDamageC, Element.earth);
     }
 
     void EnemyBehaviors.Attack()
@@ -85,6 +93,20 @@ public class SandGiant : MonoBehaviour,EnemyBehaviors {
     int EnemyBehaviors.GetSpecialCost()
     {
         return smashCost;
+    }
+    void EnemyBehaviors.GetBehaviorParams(out float attackcooldown, out float attackrange, out float maxspeed)
+    {
+        attackcooldown = attackCooldown;
+        attackrange = attackRange;
+        maxspeed = maxSpeed;
+    }
+    void EnemyBehaviors.GetAttrbuteParams(out int maxhealth, out int maxchi, out int ip, int[] elementResis)
+    {
+        maxhealth = maxHealth;
+        maxchi = maxChi;
+        ip = IP;
+        for (int i = 0; i < 5; i++)
+            elementResis[i] = elementResistance[i];
     }
     public void Smash()
     {

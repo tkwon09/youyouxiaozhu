@@ -14,9 +14,9 @@ public class EnemyBehavior : MonoBehaviour {
 
     public EnemyType type;
     public bool functioning;
-    public float attackCooldown;
-    public float attackRange = 1f;
-    public float speed;
+    float attackCooldown;
+    float attackRange;
+    float maxSpeed;
     int specialCost;
 
     float currspeed = 0;
@@ -36,7 +36,6 @@ public class EnemyBehavior : MonoBehaviour {
     int animAttack;
 
     public EnemyBehaviors behavior;
-
     public bool isstun; // can't do anything
     public int stuncount;
     public bool issealed; // can't perform chi moves
@@ -50,12 +49,13 @@ public class EnemyBehavior : MonoBehaviour {
         etype = GetComponent<EnemyAttributes>().enemyType;
         attr = GetComponent<EnemyAttributes>();
         behavior = (EnemyBehaviors)GetComponent(Type.GetType(etype));
+        behavior.GetBehaviorParams(out attackCooldown,out attackRange,out maxSpeed);
         specialCost = behavior.GetSpecialCost();
         player = GameObject.FindGameObjectWithTag("Player");
         animSpeed = Animator.StringToHash("Speed");
         anim = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
-        acc = speed / 3;
+        acc = maxSpeed / 3;
         StartCoroutine(Behave());
 	}
 	
@@ -77,15 +77,14 @@ public class EnemyBehavior : MonoBehaviour {
             transform.rotation = Quaternion.LookRotation(dest);
             if (dest.magnitude > attackRange && !istwined)
             {
-                currspeed = Mathf.Clamp(currspeed + acc * Time.fixedDeltaTime, currspeed, speed);
-                anim.SetFloat(animSpeed, currspeed / speed);
+                currspeed = Mathf.Clamp(currspeed + acc * Time.fixedDeltaTime, currspeed, maxSpeed);
+                anim.SetFloat(animSpeed, currspeed / maxSpeed);
                 controller.Move(currspeed * dest.normalized * Time.fixedDeltaTime);
-                //transform.position += currspeed * dest.normalized * Time.fixedDeltaTime;
             }
             else
             {
                 currspeed = 0;
-                anim.SetFloat(animSpeed, currspeed / speed);
+                anim.SetFloat(animSpeed, currspeed / maxSpeed);
                 if (attackReady)
                 {
                     StartCoroutine(AttackCoolDown());

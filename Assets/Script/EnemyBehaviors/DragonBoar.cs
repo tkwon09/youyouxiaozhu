@@ -14,6 +14,13 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     int die;
     int run;
 
+    public int maxHealth;
+    public int maxChi;
+    public int IP;
+    public float attackCooldown;
+    public float attackRange;
+    public float maxSpeed;
+
     public damageType basicDamageType;
     public int basicDamageP;
     public int basicDamageC;
@@ -22,6 +29,8 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     public int roarDamageC;
     public int roarCost;
     public float roarProb;
+    public Element element;
+    public int[] elementResistance = new int[5];
 
     damage basicDamage;
     damage roarDamage;
@@ -37,8 +46,11 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
         walk = Animator.StringToHash("Walk");
         die = Animator.StringToHash("Die");
         run = Animator.StringToHash("Run");
-        basicDamage = new damage(basicDamageType, basicDamageP, basicDamageC);
-        roarDamage = new damage(roarDamageType, roarDamageP, roarDamageC);
+        if(basicDamageC > 0)
+            basicDamage = new damage(basicDamageType, basicDamageP, basicDamageC, element);
+        else
+            basicDamage = new damage(basicDamageType, basicDamageP, basicDamageC);
+        roarDamage = new damage(roarDamageType, roarDamageP, roarDamageC, element);
     }
 
     void EnemyBehaviors.Attack()
@@ -71,6 +83,20 @@ public class DragonBoar : MonoBehaviour, EnemyBehaviors
     int EnemyBehaviors.GetSpecialCost()
     {
         return roarCost;
+    }
+    void EnemyBehaviors.GetBehaviorParams(out float attackcooldown, out float attackrange, out float maxspeed)
+    {
+        attackcooldown = attackCooldown;
+        attackrange = attackRange;
+        maxspeed = maxSpeed;
+    }
+    void EnemyBehaviors.GetAttrbuteParams(out int maxhealth, out int maxchi, out int ip, int[] elementResis)
+    {
+        maxhealth = maxHealth;
+        maxchi = maxChi;
+        ip = IP;
+        for(int i=0;i<5;i++)
+            elementResis[i] = elementResistance[i];
     }
     public void Scream ()
 	{

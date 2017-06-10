@@ -7,9 +7,9 @@ using Random = UnityEngine.Random;
 
 public class EnemyAttributes : MonoBehaviour {
 
-    public int maxHealth;
-    public int maxChi;
-    public int IP;
+    int maxHealth;
+    int maxChi;
+    int IP;
 
     int health;
     int chi;
@@ -24,7 +24,7 @@ public class EnemyAttributes : MonoBehaviour {
     public DataManager dataManager;
     public GameObject healthPop;
     public GameObject chiPop;
-    public int[] elementResistance = new int[5];
+    int[] elementResistance = new int[5];
 
     static Color32 highlightColor = new Color32(255, 255, 255, 255);
     static Color32 defaultColor = new Color32(150, 150, 150, 130);
@@ -36,6 +36,7 @@ public class EnemyAttributes : MonoBehaviour {
         healthBar = transform.Find("EnemyGUI").GetChild(0).GetComponent<Image>();
         chiBar = transform.Find("EnemyGUI").GetChild(1).GetComponent<Image>();
         behavior = GetComponent<EnemyBehavior>().behavior;
+        behavior.GetAttrbuteParams(out maxHealth, out maxChi, out IP, elementResistance);
         health = maxHealth;
         chi = maxChi;
         UpdateUI();
